@@ -177,10 +177,9 @@
                     uuid: generateUUID()
                 };
 
-                const safeBase = (item.base || "").replace(/[^a-zA-Z0-9]/g, "");
-                const safeMot = (item.motorista || "").replace(/[^a-zA-Z0-9 ]/g, "").toUpperCase();
-                const safeSite = (item.site || "").toUpperCase().replace(/[^a-zA-Z0-9]/g, "");
-                item.fileName = `${safeBase} - Acareação Motorista - ${safeBase} - ${safeMot} - ${item.id} - ${safeSite}.pdf`;
+                const safeBase = (item.base || "").replace(/[^a-zA-Z0-9-]/g, ""); 
+                const safeMot = (item.motorista || "").replace(/[^a-zA-Z0-9 -]/g, "").toUpperCase(); 
+                item.fileName = `${safeBase} - Acareação Motorista - ${safeBase} - ${safeMot} - ${item.id}.pdf`;
 
                 ProcessedItems.push(item);
             });
@@ -217,10 +216,11 @@
                         <p class="truncate" title="${item.nf}"><strong>NF:</strong> ${item.nf}</p>
                         <p class="col-span-2 truncate" title="${item.nome}"><strong>Cliente:</strong> ${item.nome}</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="copyMsgDriver('${item.uuid}')" class="flex-1 py-1.5 px-3 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">Motorista</button>
-                        <button onclick="copyMsgClient('${item.uuid}')" class="flex-1 py-1.5 px-3 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">Cliente</button>
-                        <button onclick="previewPDF('${item.uuid}')" class="py-1.5 px-3 bg-slate-800 text-white rounded text-xs font-medium hover:bg-slate-900 transition">PDF</button>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="copyMsgDriver('${item.uuid}')" class="py-1.5 px-2 bg-white border border-slate-300 rounded text-[10px] font-medium text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">Msg Motorista</button>
+                        <button onclick="copyOrderData('${item.uuid}')" class="py-1.5 px-2 bg-white border border-slate-300 rounded text-[10px] font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition">Dados Pedido</button>
+                        <button onclick="copyMsgClient('${item.uuid}')" class="py-1.5 px-2 bg-white border border-slate-300 rounded text-[10px] font-medium text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">Msg Cliente</button>
+                        <button onclick="previewPDF('${item.uuid}')" class="py-1.5 px-2 bg-slate-800 text-white rounded text-[10px] font-medium hover:bg-slate-900 transition">Ver PDF</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -382,7 +382,7 @@
 
             cursorY += boxMiddleH;
 
-            // CAIXA: RODAPÉ DIVIDIDO
+            // CAIXA 3: RODAPÉ DIVIDIDO
             const box4H = 35; 
             doc.rect(margin, cursorY, contentWidth, box4H);
             
@@ -402,7 +402,7 @@
 
             cursorY += box4H;
 
-            // CAIXA: ENDEREÇO
+            // CAIXA 4: ENDEREÇO
             doc.setFont("times", "normal"); 
             doc.setFontSize(12); 
             const footerLineSpacing = 8.5;
@@ -419,7 +419,7 @@
             
             cursorY += box5H;
 
-            // CAIXA: MOTORISTA
+            // CAIXA 5: MOTORISTA
             const box6H = 15;
             doc.rect(margin, cursorY, contentWidth, box6H);
             
@@ -434,18 +434,19 @@
             const margin = 15;
             let cursorY = 15;
 
-            // EXPLICACAO PARA O MOTORISTA (Apenas texto informativo)
             doc.setFont("times", "normal");
-            doc.setFontSize(10);
-            const explanation = "A acareação do cliente Mercado Livre possui um procedimento específico, diferente dos demais. Nesse fluxo, o cliente deve redigir, de próprio punho pelo cliente, uma declaração em folha de papel confirmando o recebimento do pedido. Ao final, o motorista deve fotografar essa folha, garantindo que apareçam, na mesma imagem, a declaração escrita e um documento de identificação do cliente.";
-            const splitExpl = doc.splitTextToSize(explanation, pageWidth - (2*margin));
-            doc.text(splitExpl, margin, cursorY);
-            cursorY += (splitExpl.length * 5) + 10;
 
-            doc.setFontSize(14);
+            if (Base64Logo) {
+                const logoW = 67.2; 
+                const logoH = 18.0; 
+                doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
+                cursorY += logoH + 15;
+            } else {
+                cursorY += 30;
+            }
+
             doc.setFont("times", "bold");
-            doc.text("Modelo de Exemplo de acareação mercado livre a ser feita a próprio punho:", margin, cursorY);
-            cursorY += 8;
+            doc.setFontSize(22); 
             doc.text("Modelo de Acareação Física (confirmação de recebimento):", margin, cursorY);
             cursorY += 20;
 
@@ -484,7 +485,7 @@
             doc.text(`MOTORISTA: ${item.motorista} - BASE: ${item.base}`, margin, pageHeight - 15);
         }
 
-        // --- LAYOUT VIA VAREJO (NOVO) ---
+        // --- LAYOUT VIA VAREJO ---
         function generateViaLayout(doc, item) {
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 15;
@@ -493,12 +494,10 @@
             doc.setFont("times", "normal");
             doc.setFontSize(12);
 
-            // Cabeçalho Texto Puro
             doc.text(`Data da entrega: ____/____/____`, margin, cursorY);
             cursorY += 8;
             doc.text(`Destinatário: ${item.nome}`, margin, cursorY);
             cursorY += 8;
-            // Nota e Pedido na mesma linha visual? O texto do usuário colocou Pedido longe.
             doc.text(`Nota: ${item.nf || ""}`, margin, cursorY);
             doc.text(`Pedido: ${item.id}`, margin + 100, cursorY); 
             cursorY += 8;
@@ -506,7 +505,6 @@
             
             cursorY += 15;
 
-            // Título
             doc.setFont("times", "bold");
             doc.setFontSize(14);
             doc.text("Formulário de Acareação.", pageWidth / 2, cursorY, { align: "center" });
@@ -515,13 +513,11 @@
             doc.setFont("times", "normal");
             doc.setFontSize(12);
 
-            // Corpo
             doc.text("Eu, ____________________________________________________________________, grau de parentesco", margin, cursorY);
             cursorY += 10;
             doc.text("__________________ portador do RG ______________________________________ declaro que:", margin, cursorY);
             cursorY += 15;
 
-            // Opções
             doc.text("(   ) Recebi a mercadoria no endereço correto.", margin, cursorY);
             cursorY += 8;
             doc.text("(   ) Não recebi a mercadoria.", margin, cursorY);
@@ -529,13 +525,11 @@
             doc.text("(   ) Recebi a mercadoria no endereço devido, porem com avaria.", margin, cursorY);
             cursorY += 15;
 
-            // OBS
             const obsText = "OBS:_________________________________________________________________________________________________________________________________________________________________________________.";
             const splitObs = doc.splitTextToSize(obsText, pageWidth - (2*margin));
             doc.text(splitObs, margin, cursorY);
             cursorY += (splitObs.length * 6) + 20;
 
-            // Assinatura Cliente
             doc.text("___________________________________", margin, cursorY);
             cursorY += 5;
             doc.text("Assinatura do cliente", margin, cursorY);
@@ -546,7 +540,6 @@
             
             cursorY += 20;
 
-            // Motorista
             doc.text(`Motorista: ${item.motorista}`, margin, cursorY);
             cursorY += 10;
             doc.text("Assinatura: _________________                              Data: ____/____/_______  RG:_______________.", margin, cursorY);
@@ -607,33 +600,107 @@
             }
         }
 
-        function getGreeting() {
-            const h = new Date().getHours();
-            return h < 12 ? "bom dia" : (h < 18 ? "boa tarde" : "boa noite");
+        function toTitleCase(str) {
+            return str.replace(
+                /\w\S*/g,
+                function(txt) {
+                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                }
+            );
         }
+
+        function extractDriverName(fullDriverString) {
+            let namePart = fullDriverString;
+            if (fullDriverString.includes("-")) {
+                const parts = fullDriverString.split("-");
+                if (parts.length > 1) {
+                    namePart = parts[1].trim(); 
+                }
+            }
+            
+            const titleCased = toTitleCase(namePart);
+            const nameArr = titleCased.split(" ").filter(n => n.length > 0);
+
+            if (nameArr.length > 1) {
+                return `${nameArr[0]} ${nameArr[nameArr.length - 1]}`;
+            } else if (nameArr.length === 1) {
+                return nameArr[0];
+            }
+            return "Motorista";
+        }
+
         function copyMsgDriver(uuid) {
             const it = ProcessedItems.find(i => i.uuid === uuid);
             if (!it) return;
-            const msg = `Olá ${it.motorista.split(' ')[0]}, boa noite!\n\nAqui é a ${it.atendente}, responsável pelas *acareações e agilizações* da *Next Move – J&T Express*.\n\nPeço, por gentileza, que dê *prioridade máxima* às acareações enviadas em *PDF*.📌 Os clientes alegam não ter recebido os pedidos.\n\n📝 *Orientações rápidas:*\n1️⃣ Retorne ao local da entrega para verificar a situação.\n2️⃣ Caso localize o pedido, realize a entrega e colete a assinatura na declaração.\n3️⃣ Se necessário, acione o líder da base para confirmação digital.\n\n⚠️ *Observações importantes:*\n✍️ *Mercado Livre*: exige declaração escrita à mão (*próprio punho*) pelo cliente.\n📄 *TikTok*: aceita somente acareações via formulário físico.\n🔸 *Não serão aceitas declarações sem assinatura, assinaturas incorretas, áudios ou vídeos.* \n⏰ *Prazo para retorno: 24h após o envio do formulário*.\n\n🚫 *A ausência de retorno poderá caracterizar extravio vinculado ao motorista.*\n\n🙏 Agradeço desde já pela colaboração e agilidade!\n\nMotorista: ${it.motorista}\nPedido: ${it.id} NF Nº. ${it.nf} - ${it.site}\nEstação de coleta: ${it.base}\nNome do destinatário: ${it.nome}\nEndereço de destinatário: ${it.endereco}\nTEL de destinatário: ${it.tel} \n${it.produto}`;
+            
+            const driverNameFormatted = extractDriverName(it.motorista);
+
+            // A mensagem do motorista NÃO TEM MAIS os dados do pedido, conforme pedido.
+            const msg = `Olá ${driverNameFormatted}, boa noite!
+
+Aqui é a Micheelly, responsável pelas *acareações e agilizações* da *Next Move – J&T Express*.
+
+Peço, por gentileza, que dê *prioridade máxima* às acareações enviadas em *PDF*.📌 Os clientes alegam não ter recebido os pedidos.
+
+📝 *Orientações rápidas:*
+1️⃣ Retorne ao local da entrega para verificar a situação.
+2️⃣ Caso localize o pedido, realize a entrega e colete a assinatura na declaração.
+3️⃣ Se necessário, acione o líder da base para confirmação digital.
+
+⚠️ *Observações importantes:*
+✍️ *Mercado Livre*: exige declaração escrita à mão (*próprio punho*) pelo cliente.
+📄 *TikTok*: aceita somente acareações via formulário físico.
+🔸 *Não serão aceitas declarações sem assinatura, assinaturas incorretas, áudios ou vídeos.* ⏰ *Prazo para retorno: 24h após o envio do formulário*.
+
+🚫 *A ausência de retorno poderá caracterizar extravio vinculado ao motorista.*
+
+🙏 Agradeço desde já pela colaboração e agilidade!`;
+            
             copyToClipboard(msg);
         }
+
+        // NOVA FUNÇÃO: Copiar Dados do Pedido (Novo botão)
+        function copyOrderData(uuid) {
+            const it = ProcessedItems.find(i => i.uuid === uuid);
+            if (!it) return;
+
+            const msg = `Dados do Pedido:
+
+*Motorista: ${it.motorista}*
+*Pedido: ${it.id} NF Nº. ${it.nf} - ${it.site}*
+Estação de coleta: ${it.base}
+Nome do destinatário: ${it.nome}
+Endereço de destinatário: ${it.endereco}
+TEL de destinatário: ${it.tel} 
+${it.produto}
+
+*Reclamação: Cliente alega que não recebeu seu pedido e não conhece o recebedor*`;
+
+            copyToClipboard(msg);
+        }
+
         function copyMsgClient(uuid) {
             const it = ProcessedItems.find(i => i.uuid === uuid);
             if (!it) return;
             const site = (it.site || "").toLowerCase();
-            const gr = getGreeting();
             let msg = "";
+            const h = new Date().getHours();
+            const gr = h < 12 ? "bom dia" : (h < 18 ? "boa tarde" : "boa noite");
+            const clientNameParts = it.nome.split(" ")[0]; 
+            const clientNameTitle = toTitleCase(clientNameParts);
+
             if (site.includes("mercado")) {
-                msg = `Olá ${it.nome}, ${gr}!\n\nMe chamo ${it.atendente} e sou da Transportadora *J&T Express*, parceira da entrega do *${it.site}*.\n\nVerificamos que você abriu uma reclamação referente o produto *${it.produto}*, no ID do pacote *${it.nf}* da entrega dia *${it.dataHora}*.\n\nPara que possamos auxiliar, escolha uma opção:\n\n*1️⃣Recebi o produto*\n*2️⃣Não recebi o produto;*\n*3️⃣Recebi o pacote com produtos faltantes;*\n*4️⃣Recebi produto com defeito;*\n*5️⃣Recebi um produto diferente do comprado.*\n\nEstou à disposição para te ajudar a resolver a situação da melhor forma possível.\n\nAguardamos seu retorno e, desde já, agradecemos pela atenção!\n\n${it.tel}`;
+                msg = `Olá ${clientNameTitle}, ${gr}!\n\nMe chamo ${it.atendente} e sou da Transportadora *J&T Express*, parceira da entrega do *${it.site}*.\n\nVerificamos que você abriu uma reclamação referente o produto *${it.produto}*, no ID do pacote *${it.nf}* da entrega dia *${it.dataHora}*.\n\nPara que possamos auxiliar, escolha uma opção:\n\n*1️⃣Recebi o produto*\n*2️⃣Não recebi o produto;*\n*3️⃣Recebi o pacote com produtos faltantes;*\n*4️⃣Recebi produto com defeito;*\n*5️⃣Recebi um produto diferente do comprado.*\n\nEstou à disposição para te ajudar a resolver a situação da melhor forma possível.\n\nAguardamos seu retorno e, desde já, agradecemos pela atenção!\n\n${it.tel}`;
             } else if (site.includes("tiktok")) {
-                msg = `Olá, ${it.nome}, ${gr}!\n\nTudo bem?\n\nSou ${it.atendente}, da *J&T Express*, transportadora responsável pela entrega do seu pedido.\n\nRecebemos uma notificação informando que este pedido *não foi recebido*:\n\n*Origem do pedido:* *${it.site}*\n*Código de rastreio:* *${it.id}*\n\nPara prosseguirmos com a tratativa, por favor, responda com uma das opções abaixo:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Não abri reclamação; recebi o pacote intacto*\n7️⃣ *Recebi o produto danificado* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\nTenha um ótimo dia! \n${it.tel} - ${it.base}`;
+                msg = `Olá, ${clientNameTitle}, ${gr}!\n\nTudo bem?\n\nSou ${it.atendente}, da *J&T Express*, transportadora responsável pela entrega do seu pedido.\n\nRecebemos uma notificação informando que este pedido *não foi recebido*:\n\n*Origem do pedido:* *${it.site}*\n*Código de rastreio:* *${it.id}*\n\nPara prosseguirmos com a tratativa, por favor, responda com uma das opções abaixo:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Não abri reclamação; recebi o pacote intacto*\n7️⃣ *Recebi o produto danificado* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\nTenha um ótimo dia! \n${it.tel} - ${it.base}`;
             } else if (site.includes("via")) {
-                msg = `Olá ${it.nome}, ${gr}!\n\nMe chamo ${it.atendente} e sou da Transportadora *J&T Express*, responsável pela sua entrega.\n\n*NF:* ${it.nf}\n*PEDIDO:* ${it.nf}\n*Rastreio:* ${it.id}\n*Conteúdo do pacote:* ${it.produto}\n*Loja:* ${it.site}\n\nGostaria de confirmar se recebeu todos os volumes no ato da entrega, você\nconfirmou o recebimento no site da compra ?\n\n${it.tel}`;
+                msg = `Olá ${clientNameTitle}, ${gr}!\n\nMe chamo ${it.atendente} e sou da Transportadora *J&T Express*, responsável pela sua entrega.\n\n*NF:* ${it.nf}\n*PEDIDO:* ${it.nf}\n*Rastreio:* ${it.id}\n*Conteúdo do pacote:* ${it.produto}\n*Loja:* ${it.site}\n\nGostaria de confirmar se recebeu todos os volumes no ato da entrega, você\nconfirmou o recebimento no site da compra ?\n\n${it.tel}`;
             } else {
-                msg = `Olá ${it.nome}, ${gr}!\n\nMeu nome é ${it.atendente}, sou representante da Transportadora *J&T Express*, parceira de entregas da *${it.site}*!\n\nVerificamos que você abriu uma reclamação referente ao pedido *${it.id}- (${it.nf})*.\n\nConteúdo do pacote: ${it.produto}\n\nPara que possamos auxiliar, escolha uma opção:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Recebi o produto danificado*\n7️⃣ *Não abri reclamação, recebi meu pacote correto* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\nTenha uma ótima tarde! \n${it.tel} - ${it.base}`;
+                msg = `Olá ${clientNameTitle}, ${gr}!\n\nMeu nome é ${it.atendente}, sou representante da Transportadora *J&T Express*, parceira de entregas da *${it.site}*!\n\nVerificamos que você abriu uma reclamação referente ao pedido *${it.id}- (${it.nf})*.\n\nConteúdo do pacote: ${it.produto}\n\nPara que possamos auxiliar, escolha uma opção:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Recebi o produto danificado*\n7️⃣ *Não abri reclamação, recebi meu pacote correto* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\nTenha uma ótima tarde! \n${it.tel} - ${it.base}`;
             }
             copyToClipboard(msg);
         }
+
         function copyToClipboard(text) {
             const el = document.createElement('textarea');
             el.value = text;
@@ -643,6 +710,7 @@
             document.body.removeChild(el);
             alert("Mensagem copiada!");
         }
+
         async function previewPDF(uuid) {
             const i = ProcessedItems.find(x => x.uuid === uuid);
             if (!i) return;
