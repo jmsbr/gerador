@@ -131,7 +131,7 @@
                     reader.readAsDataURL(blob);
                 });
             } catch (e) {
-                console.warn("Erro ao carregar logo para o PDF. O PDF será gerado com texto alternativo.", e);
+                console.warn("Erro ao carregar logo para o PDF (provável bloqueio de segurança do navegador). O PDF será gerado com texto alternativo.", e);
                 return null;
             }
         }
@@ -257,13 +257,15 @@
 
             doc.setFont("times", "normal");
 
-            // LOGO
+            // LOGO (Imagem)
             if (Base64Logo) {
+                // Dimensões solicitadas: 6,72 cm largura x 1,8 cm altura
                 const logoW = 67.2; 
                 const logoH = 18.0; 
                 doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
                 cursorY += logoH + 5;
             } else {
+                // Fallback Texto
                 doc.setFontSize(22);
                 doc.setFont("times", "bold");
                 doc.setTextColor(220, 0, 0);
@@ -432,7 +434,7 @@
         function generateMercadoLivreLayout(doc, item) {
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 15;
-            let cursorY = 15;
+            let cursorY = 20;
 
             doc.setFont("times", "normal");
 
@@ -493,6 +495,16 @@
 
             doc.setFont("times", "normal");
             doc.setFontSize(12);
+
+            // LOGO
+            if (Base64Logo) {
+                const logoW = 67.2; 
+                const logoH = 18.0; 
+                doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
+                cursorY += logoH + 15;
+            } else {
+                cursorY += 30;
+            }
 
             doc.text(`Data da entrega: ____/____/____`, margin, cursorY);
             cursorY += 8;
@@ -600,42 +612,16 @@
             }
         }
 
-        function toTitleCase(str) {
-            return str.replace(
-                /\w\S*/g,
-                function(txt) {
-                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-                }
-            );
+        function getGreeting() {
+            const h = new Date().getHours();
+            return h < 12 ? "bom dia" : (h < 18 ? "boa tarde" : "boa noite");
         }
-
-        function extractDriverName(fullDriverString) {
-            let namePart = fullDriverString;
-            if (fullDriverString.includes("-")) {
-                const parts = fullDriverString.split("-");
-                if (parts.length > 1) {
-                    namePart = parts[1].trim(); 
-                }
-            }
-            
-            const titleCased = toTitleCase(namePart);
-            const nameArr = titleCased.split(" ").filter(n => n.length > 0);
-
-            if (nameArr.length > 1) {
-                return `${nameArr[0]} ${nameArr[nameArr.length - 1]}`;
-            } else if (nameArr.length === 1) {
-                return nameArr[0];
-            }
-            return "Motorista";
-        }
-
         function copyMsgDriver(uuid) {
             const it = ProcessedItems.find(i => i.uuid === uuid);
             if (!it) return;
             
             const driverNameFormatted = extractDriverName(it.motorista);
 
-            // A mensagem do motorista NÃO TEM MAIS os dados do pedido, conforme pedido.
             const msg = `Olá ${driverNameFormatted}, boa noite!
 
 Aqui é a Micheelly, responsável pelas *acareações e agilizações* da *Next Move – J&T Express*.
@@ -659,7 +645,6 @@ Peço, por gentileza, que dê *prioridade máxima* às acareações enviadas em 
             copyToClipboard(msg);
         }
 
-        // NOVA FUNÇÃO: Copiar Dados do Pedido (Novo botão)
         function copyOrderData(uuid) {
             const it = ProcessedItems.find(i => i.uuid === uuid);
             if (!it) return;
@@ -699,6 +684,35 @@ ${it.produto}
                 msg = `Olá ${clientNameTitle}, ${gr}!\n\nMeu nome é ${it.atendente}, sou representante da Transportadora *J&T Express*, parceira de entregas da *${it.site}*!\n\nVerificamos que você abriu uma reclamação referente ao pedido *${it.id}- (${it.nf})*.\n\nConteúdo do pacote: ${it.produto}\n\nPara que possamos auxiliar, escolha uma opção:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Recebi o produto danificado*\n7️⃣ *Não abri reclamação, recebi meu pacote correto* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\nTenha uma ótima tarde! \n${it.tel} - ${it.base}`;
             }
             copyToClipboard(msg);
+        }
+
+        function toTitleCase(str) {
+            return str.replace(
+                /\w\S*/g,
+                function(txt) {
+                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                }
+            );
+        }
+
+        function extractDriverName(fullDriverString) {
+            let namePart = fullDriverString;
+            if (fullDriverString.includes("-")) {
+                const parts = fullDriverString.split("-");
+                if (parts.length > 1) {
+                    namePart = parts[1].trim(); 
+                }
+            }
+            
+            const titleCased = toTitleCase(namePart);
+            const nameArr = titleCased.split(" ").filter(n => n.length > 0);
+
+            if (nameArr.length > 1) {
+                return `${nameArr[0]} ${nameArr[nameArr.length - 1]}`;
+            } else if (nameArr.length === 1) {
+                return nameArr[0];
+            }
+            return "Motorista";
         }
 
         function copyToClipboard(text) {
