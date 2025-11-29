@@ -286,6 +286,7 @@
                 doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
                 cursorY += logoH + 5;
             } else {
+                // Fallback Texto
                 doc.setFontSize(22);
                 doc.setFont("times", "bold");
                 doc.setTextColor(220, 0, 0);
@@ -370,11 +371,13 @@
             const optX1 = leftX + 75; 
             const optX2 = optX1 + 45;
             
+            // Linha 1 checkboxes
             doc.rect(optX1, internalY - 4, 4, 4);
             doc.text("O destinatário", optX1 + 6, internalY);
             doc.rect(optX2, internalY - 4, 4, 4);
             doc.text("Parente / Funcionário", optX2 + 6, internalY);
             
+            // Linha 2 checkboxes (Outros)
             internalY += 10;
             doc.rect(optX1, internalY - 4, 4, 4);
             doc.text("Outros ________________________", optX1 + 6, internalY);
@@ -736,6 +739,17 @@ ${it.produto}
                 msg = `Olá ${clientNameFull}, ${gr}!\n\nMeu nome é ${it.atendente}, sou representante da Transportadora *J&T Express*, parceira de entregas da *${it.site}*!\n\nVerificamos que você abriu uma reclamação referente ao pedido *${it.id}- (${it.nf})*.\n\nConteúdo do pacote: ${it.produto}\n\nPara que possamos auxiliar, escolha uma opção:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Recebi o produto danificado*\n7️⃣ *Não abri reclamação, recebi meu pacote correto* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\n${endGr} \n${it.tel} - ${it.base}`;
             }
             copyToClipboard(msg);
+        }
+
+        // Função para copiar texto (re-adicionada para corrigir ReferenceError)
+        function copyToClipboard(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert("Mensagem copiada!");
         }
 
         // NOVO: Função para abrir o PDF contornando bloqueios de popup (abre janela em branco primeiro)
