@@ -559,14 +559,33 @@
             doc.text("Assinatura: _________________                              Data: ____/____/_______  RG:_______________.", margin, cursorY);
         }
 
+        // HELPER: Fetch com Timeout (Resolve travamento de "Enviando...")
+        async function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 30000 } = options; // 30 segundos
+            
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            const response = await fetch(resource, {
+                ...options,
+                signal: controller.signal  
+            });
+            clearTimeout(id);
+            return response;
+        }
+
         async function uploadToPanel() {
             if (!confirm("Confirma o envio para o painel?")) return;
             const overlay = document.getElementById('loading-overlay');
             const txt = document.getElementById('loading-text');
             overlay.style.display = 'flex';
+            
             try {
                 txt.innerText = "Baixando dados...";
-                const res = await fetch(`${DATABASE_URL}?_=${Date.now()}`);
+                // Usando timeout também no GET para não travar
+                const res = await fetchWithTimeout(`${DATABASE_URL}?_=${Date.now()}`, { timeout: 15000 });
+                
+                if (!res.ok) throw new Error(`Erro ao baixar dados: ${res.status}`);
+                
                 let currentData = await res.json();
                 if (!currentData || typeof currentData !== 'object') currentData = { files: [] };
                 if (!currentData.files) currentData.files = [];
@@ -596,19 +615,32 @@
                         valorMulta: 0
                     });
                 }
+                
                 txt.innerText = "Enviando...";
-                await fetch(DATABASE_URL, {
+                // Envio com Timeout
+                const uploadRes = await fetchWithTimeout(DATABASE_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentData)
+                    body: JSON.stringify(currentData),
+                    timeout: 45000 // 45 segundos para upload
                 });
+
+                if (!uploadRes.ok) {
+                    if (uploadRes.status === 413) throw new Error("Erro 413: Dados muito grandes para o servidor.");
+                    throw new Error(`Erro no envio: ${uploadRes.status}`);
+                }
+
                 alert("Enviado com sucesso!");
                 ProcessedItems = [];
                 document.getElementById('bulk-input').value = '';
                 renderList();
             } catch (err) {
                 console.error(err);
-                alert("Erro: " + err.message);
+                if (err.name === 'AbortError') {
+                    alert("Tempo limite excedido! A conexão está lenta ou o arquivo é muito grande.");
+                } else {
+                    alert("Erro: " + err.message);
+                }
             } finally {
                 overlay.style.display = 'none';
             }
@@ -733,20 +765,25 @@ ${it.produto}
             alert("Mensagem copiada!");
         }
 
-        // Função para abrir o PDF via Blob URL (solução cross-browser)
+        // NOVO: Função para abrir o PDF contornando bloqueios de popup (abre janela em branco primeiro)
         async function previewPDF(uuid) {
             const i = ProcessedItems.find(x => x.uuid === uuid);
             if (!i) return;
 
+            // Abre janela imediatamente
+            const win = window.open("", "_blank");
+            if (!win) {
+                alert("Por favor, permita pop-ups para visualizar o PDF.");
+                return;
+            }
+            win.document.write("<html><head><title>Gerando PDF...</title></head><body style='display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;'><div><h2>Gerando PDF...</h2><p>Aguarde um momento.</p></div></body></html>");
+
             try {
-                const blob = await createPDFBlob(i);
-                const url = URL.createObjectURL(blob);
-                // Abre em nova aba
-                const win = window.open(url, '_blank');
-                if (!win) {
-                    alert("Por favor, permita pop-ups para visualizar o PDF.");
-                }
+                const b = await createPDFBlob(i);
+                const url = URL.createObjectURL(b);
+                win.location.href = url;
             } catch (err) {
+                win.close();
                 console.error(err);
                 alert("Erro ao gerar PDF: " + err.message);
             }
