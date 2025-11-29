@@ -104,10 +104,44 @@
         // URL do banco de dados (npoint)
         const DATABASE_URL = "https://api.npoint.io/ef789e8a4e2cd9900cf7"; 
 
-        // Logo da J&T (para exibição e PDF)
+        // URL da Logo (Tentativa principal)
         const LOGO_URL = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgwmIpBa-x2_oBe8lYpKz9KbRFr_O1lf4KX0G46S67hqzuZExEwrajG7BYfPu_Baz9tVP_uK6i7OsbshbZdA4-WaEcRaFr1v5D44wM3gYouQBHnEAcB8wtMV2l5JQ7NBq4uDux-1rbMYpY/s320/5c42d91c480329c763370f48fc59489c.png";
-        let Base64Logo = null;
+        
+        // Base64 de backup (Logo J&T Express simples em vermelho) - Garantia de funcionamento
+        const LOGO_BASE64_BACKUP = "data:image/png;base64,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";
 
+        // Função de carregamento aprimorada (Image Object + Canvas + Base64 Backup)
+        async function loadLogo() {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous"; // Tenta carregar sem bloquear por CORS
+                
+                img.onload = () => {
+                    // Cria um canvas para desenhar a imagem e extrair os dados
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    try {
+                        resolve(canvas.toDataURL('image/png'));
+                    } catch (e) {
+                        console.warn("Bloqueio de CORS no Canvas. Usando backup.", e);
+                        resolve(LOGO_BASE64_BACKUP);
+                    }
+                };
+
+                img.onerror = () => {
+                    console.warn("Erro ao carregar imagem externa. Usando backup.");
+                    resolve(LOGO_BASE64_BACKUP);
+                };
+
+                // Tenta carregar a URL externa
+                img.src = LOGO_URL;
+            });
+        }
+
+        let Base64Logo = null;
         let ProcessedItems = [];
 
         function generateUUID() {
@@ -118,22 +152,6 @@
                 var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
-        }
-
-        async function loadLogo() {
-            try {
-                const response = await fetch(LOGO_URL);
-                if (!response.ok) throw new Error("Falha no fetch da imagem");
-                const blob = await response.blob();
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(blob);
-                });
-            } catch (e) {
-                console.warn("Erro ao carregar logo para o PDF. O PDF será gerado com texto alternativo.", e);
-                return null;
-            }
         }
 
         async function ensureLogoLoaded() {
@@ -257,15 +275,14 @@
 
             doc.setFont("times", "normal");
 
-            // LOGO (Imagem)
+            // LOGO (Imagem Base64 carregada)
             if (Base64Logo) {
-                // Dimensões solicitadas: 6,72 cm largura x 1,8 cm altura
                 const logoW = 67.2; 
                 const logoH = 18.0; 
                 doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
                 cursorY += logoH + 5;
             } else {
-                // Fallback Texto
+                // Fallback extremo
                 doc.setFontSize(22);
                 doc.setFont("times", "bold");
                 doc.setTextColor(220, 0, 0);
@@ -706,7 +723,6 @@ ${it.produto}
                 endGr = "Tenha uma ótima noite!";
             }
 
-            // Converter o NOME COMPLETO do cliente para Title Case
             const clientNameFull = toTitleCase(it.nome);
 
             if (site.includes("mercado")) {
