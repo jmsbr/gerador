@@ -270,49 +270,52 @@
         function generateStandardLayout(doc, item) {
             const pageWidth = doc.internal.pageSize.getWidth(); 
             const pageHeight = doc.internal.pageSize.getHeight(); 
-            const margin = 10; 
+            const margin = 10; // Reduced margin
             const contentWidth = pageWidth - (2 * margin);
-            const leftX = margin + 2;
-            const maxTextWidth = contentWidth - 4;
+            const leftX = margin + 3;
+            const maxTextWidth = contentWidth - 6;
             
             let cursorY = 10; 
 
             doc.setFont("times", "normal");
 
+            // HEADER
             if (Base64Logo) {
                 const logoW = 67.2; const logoH = 18.0; 
                 doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
-                cursorY += logoH + 5;
+                cursorY += logoH + 2; 
             } else {
                 doc.setFontSize(22); doc.setFont("times", "bold"); doc.setTextColor(220, 0, 0);
                 doc.text("J&T EXPRESS", pageWidth / 2, cursorY + 10, { align: "center" });
-                doc.setTextColor(0); cursorY += 20;
+                doc.setTextColor(0); cursorY += 15;
             }
 
-            doc.setFont("times", "normal"); doc.setFontSize(22);
-            doc.text("Declaração de Acareação", pageWidth / 2, cursorY, { align: "center" });
+            // TITLE
+            doc.setFont("times", "normal");
+            doc.setFontSize(22);
+            doc.text("Declaração de Acareação", pageWidth / 2, cursorY + 8, { align: "center" });
             const titleW = doc.getTextWidth("Declaração de Acareação");
             doc.setLineWidth(0.5);
-            doc.line((pageWidth/2)-(titleW/2), cursorY+1, (pageWidth/2)+(titleW/2), cursorY+1);
+            doc.line((pageWidth/2)-(titleW/2), cursorY+9, (pageWidth/2)+(titleW/2), cursorY+9);
             doc.setLineWidth(0.1);
-            cursorY += 10; 
+            cursorY += 15; 
 
             doc.setFontSize(12);
             
             // --- CAIXA 1: DADOS DO CONSUMIDOR ---
             const box1StartY = cursorY;
-            let internalY = box1StartY + 8;
+            let internalY = box1StartY + 6;
             
             doc.setFont("times", "bold");
             doc.text("Dados do consumidor", pageWidth / 2, internalY, { align: "center" });
-            internalY += 10;
+            internalY += 8;
             doc.setFont("times", "normal");
             
             function renderField(label, value) {
                 const text = label + value;
                 const lines = doc.splitTextToSize(text, maxTextWidth);
                 doc.text(lines, leftX, internalY);
-                internalY += (lines.length * 6) + 2; 
+                internalY += (lines.length * 7) + 1; 
             }
 
             renderField("Nome do titular da compra: ", item.nome);
@@ -322,7 +325,7 @@
 
             const infoLines = doc.splitTextToSize("As informações acima podem ser confirmadas pelo telefone do titular da compra:", maxTextWidth);
             doc.text(infoLines, leftX, internalY);
-            internalY += (infoLines.length * 6) + 2;
+            internalY += (infoLines.length * 7) + 1;
             doc.text(`${item.tel}`, leftX, internalY);
             internalY += 6; 
 
@@ -332,89 +335,93 @@
 
             // --- CAIXA 2: MOTIVO ---
             const box2StartY = cursorY;
-            internalY = box2StartY + 8;
+            internalY = box2StartY + 6;
 
             doc.setFont("times", "bold");
             doc.text("Motivo da Acareação", pageWidth / 2, internalY, { align: "center" });
-            internalY += 10;
+            internalY += 8;
             doc.setFont("times", "normal");
 
             const txtM1 = "Destinatário (a) está contestando o recebimento da remessa";
             const linesM1 = doc.splitTextToSize(txtM1, maxTextWidth - 10); 
             doc.rect(leftX, internalY - 4, 4, 4); 
             doc.text(linesM1, leftX + 6, internalY);
-            internalY += (linesM1.length * 6) + 4;
+            internalY += (linesM1.length * 7) + 2;
 
             const txtM2 = "Destinatário (a) está contestando o recebimento dos volumes devidamente lacrados e sem sinais de violação.";
             const linesM2 = doc.splitTextToSize(txtM2, maxTextWidth - 10);
             doc.rect(leftX, internalY - 4, 4, 4);
             doc.text(linesM2, leftX + 6, internalY);
-            internalY += (linesM2.length * 6) + 4;
+            internalY += (linesM2.length * 7) + 2;
 
             const box2H = internalY - box2StartY;
             doc.rect(margin, box2StartY, contentWidth, box2H);
             cursorY += box2H;
 
-            // --- CAIXA 3: QUEM RECEBEU ---
-            // Sub-section 3.1: Pergunta e Opções
-            const box3_1_StartY = cursorY;
-            internalY = box3_1_StartY + 8;
+            // --- CAIXA 3: QUEM RECEBEU (LAYOUT CORRIGIDO) ---
+            const box3StartY = cursorY;
+            internalY = box3StartY + 8;
+
+            const qText = "Quem recebeu a visita do motorista?";
+            const qWidth = doc.getTextWidth(qText);
+            doc.text(qText, leftX, internalY);
             
-            doc.text("Quem recebeu a visita do motorista?", leftX, internalY);
+            // Alinhamento horizontal das primeiras opções
+            const chk1X = leftX + qWidth + 5;
+            doc.rect(chk1X, internalY - 4, 4, 4);
+            doc.text("O destinatário", chk1X + 5, internalY);
             
-            const opt1X = leftX + 70; 
-            const opt2X = opt1X + 45;
-            
-            doc.rect(opt1X, internalY - 4, 4, 4); doc.text("O destinatário", opt1X + 6, internalY);
-            doc.rect(opt2X, internalY - 4, 4, 4); doc.text("Parente / Funcionário", opt2X + 6, internalY);
+            const w1 = doc.getTextWidth("O destinatário");
+            const chk2X = chk1X + 5 + w1 + 10;
+            doc.rect(chk2X, internalY - 4, 4, 4);
+            doc.text("Parente / Funcionário", chk2X + 5, internalY);
             
             internalY += 10;
-            doc.rect(opt1X, internalY - 4, 4, 4); doc.text("Outros _________________________", opt1X + 6, internalY);
-            internalY += 6; // Padding bottom
-
-            const box3_1_H = internalY - box3_1_StartY;
-            doc.rect(margin, box3_1_StartY, contentWidth, box3_1_H);
-            cursorY += box3_1_H;
-
-            // Sub-section 3.2: Nome / Documento
-            const box3_2_StartY = cursorY;
-            internalY = box3_2_StartY + 10;
             
+            // Linha de baixo: Outros
+            doc.rect(leftX, internalY - 4, 4, 4);
+            doc.text("Outros __________________________________", leftX + 5, internalY);
+            
+            internalY += 12;
+
+            // Nome e Documento com underlines
             doc.setFont("times", "bold");
-            doc.text("Nome: ___________________________________", leftX, internalY);
-            doc.text("Documento: ________________________", leftX + 100, internalY);
-            doc.setFont("times", "normal");
-            internalY += 8;
+            const nameLabel = "Nome: ";
+            doc.text(nameLabel, leftX, internalY);
+            // Desenha linha para nome
+            doc.line(leftX + doc.getTextWidth(nameLabel), internalY, leftX + 100, internalY);
             
-            const box3_2_H = internalY - box3_2_StartY;
-            doc.rect(margin, box3_2_StartY, contentWidth, box3_2_H);
-            cursorY += box3_2_H;
+            const docLabel = "Documento: ";
+            const docX = leftX + 110;
+            doc.text(docLabel, docX, internalY);
+            // Desenha linha para documento
+            doc.line(docX + doc.getTextWidth(docLabel), internalY, contentWidth + margin - 5, internalY);
 
-            // Sub-section 3.3: Reconhecimento
-            const box3_3_StartY = cursorY;
-            internalY = box3_3_StartY + 8;
-            
+            doc.setFont("times", "normal");
+            internalY += 12;
+
             doc.text("O recebedor foi reconhecido no ato da acareação?", leftX, internalY);
             internalY += 10;
+
+            // Checkboxes reconhecimento
+            doc.rect(leftX, internalY - 4, 4, 4); doc.text("Sim, endereço correto", leftX + 6, internalY);
+            const recX2 = leftX + 60;
+            doc.rect(recX2, internalY - 4, 4, 4); doc.text("Sim, endereço errado", recX2 + 6, internalY);
+            const recX3 = recX2 + 60;
             
-            const recX1 = leftX;
-            const recX2 = leftX + 100; // Shift right
-            
-            doc.rect(recX1, internalY - 4, 4, 4); 
-            doc.text("Sim, a entrega foi realizada no endereço correto", recX1 + 6, internalY);
-            
-            doc.rect(recX2, internalY - 4, 4, 4); 
-            doc.text("Sim, porém no endereço errado", recX2 + 6, internalY);
+            // Verifica se "Não" cabe na mesma linha ou precisa descer
+            if (recX3 + 20 < contentWidth + margin) {
+                 doc.rect(recX3, internalY - 4, 4, 4); doc.text("Não", recX3 + 6, internalY);
+            } else {
+                internalY += 8;
+                doc.rect(leftX, internalY - 4, 4, 4); doc.text("Não", leftX + 6, internalY);
+            }
             
             internalY += 8;
-            doc.rect(recX1, internalY - 4, 4, 4); 
-            doc.text("Não", recX1 + 6, internalY);
-            
-            internalY += 6; // Padding
-            
-            const box3_3_H = internalY - box3_3_StartY;
-            doc.rect(margin, box3_3_StartY, contentWidth, box3_3_H);
-            cursorY += box3_3_H;
+
+            const box3H = internalY - box3StartY;
+            doc.rect(margin, box3StartY, contentWidth, box3H);
+            cursorY += box3H;
 
             // --- CAIXA 4: ASSINATURA ---
             const box4StartY = cursorY;
@@ -436,34 +443,36 @@
 
             cursorY += box4H;
 
-            // --- CAIXA 5: ENDEREÇO ---
+            // --- CAIXA 5: ENDEREÇO (ALTURA DINÂMICA) ---
             const box5StartY = cursorY;
             internalY = box5StartY + 6;
+            
             const addrLabel = "Endereço de destinatário: ";
             const addrVal = item.endereco;
             const fullAddr = `${addrLabel}${addrVal}`;
             const addrLines = doc.splitTextToSize(fullAddr, maxTextWidth);
             doc.text(addrLines, leftX, internalY);
-            internalY += (addrLines.length * 6) + 2;
+            internalY += (addrLines.length * 6) + 4;
             
             const box5H = internalY - box5StartY;
             doc.rect(margin, box5StartY, contentWidth, box5H);
             cursorY += box5H;
 
-            // --- CAIXA 6: MOTORISTA ---
+            // --- CAIXA 6: MOTORISTA (ALTURA DINÂMICA) ---
             const box6StartY = cursorY;
-            internalY = box6StartY + 8; 
+            internalY = box6StartY + 10; 
+            
             const motText = `MOTORISTA: ${item.motorista} - BASE: ${item.base}`;
             const motLines = doc.splitTextToSize(motText, maxTextWidth);
             doc.text(motLines, leftX, internalY);
             
-            const box6H = (motLines.length * 6) + 6;
+            const box6H = (motLines.length * 6) + 10;
             
             if (box6StartY + box6H > pageHeight - 5) {
-                doc.addPage();
-                cursorY = 20;
-                doc.rect(margin, cursorY, contentWidth, box6H);
-                doc.text(motLines, leftX, cursorY + 8);
+                 // Backup para não quebrar, embora tenhamos compactado
+                 doc.addPage();
+                 doc.rect(margin, 20, contentWidth, box6H);
+                 doc.text(motLines, leftX, 20 + 8);
             } else {
                 doc.rect(margin, box6StartY, contentWidth, box6H);
             }
