@@ -113,26 +113,39 @@
         // Base64 de backup (Logo J&T Express simples)
         const LOGO_BASE64_BACKUP = "data:image/png;base64,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";
 
+        // Função de carregamento aprimorada
         async function loadLogo() {
             return new Promise((resolve) => {
                 const img = new Image();
                 
                 img.onload = () => {
+                    if (img.width === 0 || img.height === 0) {
+                        console.warn("Imagem carregada mas vazia. Usando backup.");
+                        resolve(LOGO_BASE64_BACKUP);
+                        return;
+                    }
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
                     try {
-                        resolve(canvas.toDataURL('image/png'));
+                        const dataURL = canvas.toDataURL('image/png');
+                        // Verificação básica se o dataURL é válido
+                        if (dataURL === 'data:,') {
+                            console.warn("DataURL vazio. Usando backup.");
+                            resolve(LOGO_BASE64_BACKUP);
+                        } else {
+                            resolve(dataURL);
+                        }
                     } catch (e) {
-                        console.warn("Erro ao converter logo local. Usando backup.", e);
+                        console.warn("Erro ao converter logo local (CORS?). Usando backup.", e);
                         resolve(LOGO_BASE64_BACKUP);
                     }
                 };
 
                 img.onerror = () => {
-                    console.warn("Logo 'loadLogo.png' não encontrada na pasta. Usando backup Base64.");
+                    console.warn("Logo 'loadLogo.png' não encontrada ou erro de carga. Usando backup Base64.");
                     resolve(LOGO_BASE64_BACKUP);
                 };
 
@@ -269,6 +282,9 @@
             const pageHeight = doc.internal.pageSize.getHeight(); 
             const margin = 15;
             const contentWidth = pageWidth - (2 * margin);
+            const leftX = margin + 2;
+            const maxTextWidth = contentWidth - 4;
+            
             let cursorY = 10; 
 
             doc.setFont("times", "normal");
@@ -299,138 +315,146 @@
 
             doc.setFontSize(12);
             
-            const box1H = 75; 
-            doc.rect(margin, cursorY, contentWidth, box1H);
-            let internalY = cursorY + 8;
+            // --- CAIXA 1: DADOS DO CONSUMIDOR (ALTURA DINÂMICA) ---
+            const box1StartY = cursorY;
+            let internalY = box1StartY + 8;
             
             doc.setFont("times", "bold");
             doc.text("Dados do consumidor", pageWidth / 2, internalY, { align: "center" });
-            
             internalY += 10;
-            doc.setFont("times", "normal");
-            const leftX = margin + 2;
-            const lineSpacing = 8.5; 
-
-            doc.text(`Nome do titular da compra: ${item.nome}`, leftX, internalY);
-            internalY += lineSpacing;
             
-            const siteStr = `Site no qual a compra foi realizada: ${item.site}`;
-            doc.text(siteStr, leftX, internalY);
-            internalY += lineSpacing; 
+            doc.setFont("times", "normal");
+            
+            function renderField(label, value) {
+                const text = label + value;
+                const lines = doc.splitTextToSize(text, maxTextWidth);
+                doc.text(lines, leftX, internalY);
+                internalY += (lines.length * 6) + 2; 
+            }
 
-            doc.text(`ID Pedido: ${item.id}`, leftX, internalY);
-            internalY += lineSpacing;
+            renderField("Nome do titular da compra: ", item.nome);
+            renderField("Site no qual a compra foi realizada: ", item.site);
+            renderField("ID Pedido: ", item.id);
+            renderField("Nome do produto: ", item.produto);
 
-            const prodLabel = "Nome do produto: ";
-            const prodVal = item.produto;
-            doc.text(`${prodLabel}${prodVal}`, leftX, internalY);
-            internalY += lineSpacing;
-
-            doc.text("As informações acima podem ser confirmadas pelo telefone do titular da compra:", leftX, internalY);
-            internalY += lineSpacing;
+            const infoLines = doc.splitTextToSize("As informações acima podem ser confirmadas pelo telefone do titular da compra:", maxTextWidth);
+            doc.text(infoLines, leftX, internalY);
+            internalY += (infoLines.length * 6) + 2;
+            
             doc.text(`${item.tel}`, leftX, internalY);
+            internalY += 8; 
 
+            const box1H = internalY - box1StartY;
+            doc.rect(margin, box1StartY, contentWidth, box1H);
             cursorY += box1H; 
 
-            const boxMiddleH = 100;
-            doc.rect(margin, cursorY, contentWidth, boxMiddleH);
-            
-            internalY = cursorY + 8;
+            // --- CAIXA 2: MOTIVO (ALTURA DINÂMICA) ---
+            const box2StartY = cursorY;
+            internalY = box2StartY + 8;
 
             doc.setFont("times", "bold");
             doc.text("Motivo da Acareação", pageWidth / 2, internalY, { align: "center" });
-            internalY += 8;
+            internalY += 10;
             doc.setFont("times", "normal");
 
+            const txtM1 = "Destinatário (a) está contestando o recebimento da remessa";
+            const linesM1 = doc.splitTextToSize(txtM1, maxTextWidth - 10); 
             doc.rect(leftX, internalY - 4, 4, 4); 
-            doc.text("Destinatário (a) está contestando o recebimento da remessa", leftX + 6, internalY);
-            internalY += 8;
+            doc.text(linesM1, leftX + 6, internalY);
+            internalY += (linesM1.length * 6) + 4;
 
-            doc.rect(leftX, internalY - 4, 4, 4);
             const txtM2 = "Destinatário (a) está contestando o recebimento dos volumes devidamente lacrados e sem sinais de violação.";
-            const splitM2 = doc.splitTextToSize(txtM2, contentWidth - 12);
-            doc.text(splitM2, leftX + 6, internalY);
-            
-            internalY += 15; 
+            const linesM2 = doc.splitTextToSize(txtM2, maxTextWidth - 10);
+            doc.rect(leftX, internalY - 4, 4, 4);
+            doc.text(linesM2, leftX + 6, internalY);
+            internalY += (linesM2.length * 6) + 6;
+
+            const box2H = internalY - box2StartY;
+            doc.rect(margin, box2StartY, contentWidth, box2H);
+            cursorY += box2H;
+
+            // --- CAIXA 3: QUEM RECEBEU (ALTURA DINÂMICA) ---
+            const box3StartY = cursorY;
+            internalY = box3StartY + 8;
 
             doc.text("Quem recebeu a visita do motorista?", leftX, internalY);
+            internalY += 8;
             
-            const optX1 = leftX + 75; 
-            const optX2 = optX1 + 45;
+            const optX1 = leftX + 10;
+            const optX2 = optX1 + 50;
+            const optX3 = optX1; 
             
-            doc.rect(optX1, internalY - 4, 4, 4);
-            doc.text("O destinatário", optX1 + 6, internalY);
-            doc.rect(optX2, internalY - 4, 4, 4);
-            doc.text("Parente / Funcionário", optX2 + 6, internalY);
-            
+            doc.rect(optX1, internalY - 4, 4, 4); doc.text("O destinatário", optX1 + 6, internalY);
+            doc.rect(optX2, internalY - 4, 4, 4); doc.text("Parente / Funcionário", optX2 + 6, internalY);
             internalY += 10;
-            doc.rect(optX1, internalY - 4, 4, 4);
-            doc.text("Outros ________________________", optX1 + 6, internalY);
             
-            internalY += 12;
+            doc.rect(optX3, internalY - 4, 4, 4); doc.text("Outros ________________________", optX3 + 6, internalY);
+            internalY += 14;
 
             doc.setFont("times", "bold");
             doc.text("Nome: _________________________  Documento: ___________________", leftX, internalY);
             doc.setFont("times", "normal");
-            internalY += 12;
+            internalY += 14;
 
             doc.text("O recebedor foi reconhecido no ato da acareação?", leftX, internalY);
             internalY += 10;
 
-            doc.rect(leftX, internalY - 4, 4, 4);
-            doc.text("Sim, endereço correto", leftX + 6, internalY); 
-
+            doc.rect(leftX, internalY - 4, 4, 4); doc.text("Sim, endereço correto", leftX + 6, internalY);
             const recX2 = leftX + 60;
-            doc.rect(recX2, internalY - 4, 4, 4);
-            doc.text("Sim, endereço errado", recX2 + 6, internalY);
-            
-            const recX3 = recX2 + 60;
-            doc.rect(recX3, internalY - 4, 4, 4);
-            doc.text("Não", recX3 + 6, internalY);
+            doc.rect(recX2, internalY - 4, 4, 4); doc.text("Sim, endereço errado", recX2 + 6, internalY);
+            internalY += 8;
+            doc.rect(leftX, internalY - 4, 4, 4); doc.text("Não", leftX + 6, internalY);
+            internalY += 8;
 
-            cursorY += boxMiddleH;
+            const box3H = internalY - box3StartY;
+            doc.rect(margin, box3StartY, contentWidth, box3H);
+            cursorY += box3H;
 
+            // --- CAIXA 4: ASSINATURA ---
+            const box4StartY = cursorY;
             const box4H = 35; 
-            doc.rect(margin, cursorY, contentWidth, box4H);
-            
-            doc.line(pageWidth / 2, cursorY, pageWidth / 2, cursorY + box4H);
+            doc.rect(margin, box4StartY, contentWidth, box4H);
+            doc.line(pageWidth / 2, box4StartY, pageWidth / 2, box4StartY + box4H);
 
             const centerLeft = margin + (contentWidth / 4);
-            doc.text("Cidade", centerLeft, cursorY + 12, { align: "center" });
+            doc.text("Cidade", centerLeft, box4StartY + 12, { align: "center" });
             doc.setFont("times", "bold");
-            doc.text("Assinatura:", margin + 2, cursorY + box4H - 5);
+            doc.text("Assinatura:", margin + 2, box4StartY + box4H - 5);
             doc.setFont("times", "normal");
 
             const centerRight = (pageWidth / 2) + (contentWidth / 4);
-            doc.text("______, de ____________ de ______", centerRight, cursorY + 12, { align: "center" });
+            doc.text("______, de ____________ de ______", centerRight, box4StartY + 12, { align: "center" });
             doc.setFontSize(10); 
-            doc.text("Dia          Mês e Ano", centerRight, cursorY + 22, { align: "center" });
+            doc.text("Dia          Mês e Ano", centerRight, box4StartY + 22, { align: "center" });
             doc.setFontSize(12);
 
             cursorY += box4H;
 
-            doc.setFont("times", "normal"); 
-            doc.setFontSize(12); 
-            const footerLineSpacing = 8.5;
-
+            // --- CAIXA 5: ENDEREÇO (ALTURA DINÂMICA) ---
+            const box5StartY = cursorY;
+            internalY = box5StartY + 6;
+            
             const addrLabel = "Endereço de destinatário: ";
             const addrVal = item.endereco;
             const fullAddr = `${addrLabel}${addrVal}`;
-            const splitAddr = doc.splitTextToSize(fullAddr, contentWidth - 4);
+            const addrLines = doc.splitTextToSize(fullAddr, maxTextWidth);
+            doc.text(addrLines, leftX, internalY);
+            internalY += (addrLines.length * 6) + 4;
             
-            const box5H = (splitAddr.length * footerLineSpacing) + 5; 
-            
-            doc.rect(margin, cursorY, contentWidth, box5H);
-            doc.text(splitAddr, leftX, cursorY + 7);
-            
+            const box5H = internalY - box5StartY;
+            doc.rect(margin, box5StartY, contentWidth, box5H);
             cursorY += box5H;
 
-            const box6H = 15;
-            doc.rect(margin, cursorY, contentWidth, box6H);
+            // --- CAIXA 6: MOTORISTA (ALTURA DINÂMICA) ---
+            const box6StartY = cursorY;
+            internalY = box6StartY + 10; 
             
-            doc.setFont("times", "normal"); 
-            doc.setFontSize(12); 
-            doc.text(`MOTORISTA: ${item.motorista} - BASE: ${item.base}`, leftX, cursorY + 10);
+            const motText = `MOTORISTA: ${item.motorista} - BASE: ${item.base}`;
+            const motLines = doc.splitTextToSize(motText, maxTextWidth);
+            doc.text(motLines, leftX, internalY);
+            
+            const box6H = (motLines.length * 6) + 10;
+            doc.rect(margin, box6StartY, contentWidth, box6H);
         }
 
         // --- LAYOUT MERCADO LIVRE ---
@@ -559,33 +583,14 @@
             doc.text("Assinatura: _________________                              Data: ____/____/_______  RG:_______________.", margin, cursorY);
         }
 
-        // HELPER: Fetch com Timeout (Resolve travamento de "Enviando...")
-        async function fetchWithTimeout(resource, options = {}) {
-            const { timeout = 30000 } = options; // 30 segundos
-            
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeout);
-            const response = await fetch(resource, {
-                ...options,
-                signal: controller.signal  
-            });
-            clearTimeout(id);
-            return response;
-        }
-
         async function uploadToPanel() {
             if (!confirm("Confirma o envio para o painel?")) return;
             const overlay = document.getElementById('loading-overlay');
             const txt = document.getElementById('loading-text');
             overlay.style.display = 'flex';
-            
             try {
                 txt.innerText = "Baixando dados...";
-                // Usando timeout também no GET para não travar
-                const res = await fetchWithTimeout(`${DATABASE_URL}?_=${Date.now()}`, { timeout: 15000 });
-                
-                if (!res.ok) throw new Error(`Erro ao baixar dados: ${res.status}`);
-                
+                const res = await fetch(`${DATABASE_URL}?_=${Date.now()}`);
                 let currentData = await res.json();
                 if (!currentData || typeof currentData !== 'object') currentData = { files: [] };
                 if (!currentData.files) currentData.files = [];
@@ -615,146 +620,51 @@
                         valorMulta: 0
                     });
                 }
-                
                 txt.innerText = "Enviando...";
-                // Envio com Timeout
-                const uploadRes = await fetchWithTimeout(DATABASE_URL, {
+                await fetch(DATABASE_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentData),
-                    timeout: 45000 // 45 segundos para upload
+                    body: JSON.stringify(currentData)
                 });
-
-                if (!uploadRes.ok) {
-                    if (uploadRes.status === 413) throw new Error("Erro 413: Dados muito grandes para o servidor.");
-                    throw new Error(`Erro no envio: ${uploadRes.status}`);
-                }
-
                 alert("Enviado com sucesso!");
                 ProcessedItems = [];
                 document.getElementById('bulk-input').value = '';
                 renderList();
             } catch (err) {
                 console.error(err);
-                if (err.name === 'AbortError') {
-                    alert("Tempo limite excedido! A conexão está lenta ou o arquivo é muito grande.");
-                } else {
-                    alert("Erro: " + err.message);
-                }
+                alert("Erro: " + err.message);
             } finally {
                 overlay.style.display = 'none';
             }
         }
 
-        function toTitleCase(str) {
-            return str.replace(
-                /\w\S*/g,
-                function(txt) {
-                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-                }
-            );
+        function getGreeting() {
+            const h = new Date().getHours();
+            return h < 12 ? "bom dia" : (h < 18 ? "boa tarde" : "boa noite");
         }
-
-        function extractDriverName(fullDriverString) {
-            let namePart = fullDriverString;
-            if (fullDriverString.includes("-")) {
-                const parts = fullDriverString.split("-");
-                if (parts.length > 1) {
-                    namePart = parts[1].trim(); 
-                }
-            }
-            
-            const titleCased = toTitleCase(namePart);
-            const nameArr = titleCased.split(" ").filter(n => n.length > 0);
-
-            if (nameArr.length > 1) {
-                return `${nameArr[0]} ${nameArr[nameArr.length - 1]}`;
-            } else if (nameArr.length === 1) {
-                return nameArr[0];
-            }
-            return "Motorista";
-        }
-
         function copyMsgDriver(uuid) {
             const it = ProcessedItems.find(i => i.uuid === uuid);
             if (!it) return;
-            
-            const driverNameFormatted = extractDriverName(it.motorista);
-            const atendente = it.atendente || "Atendente"; 
-
-            const msg = `Olá ${driverNameFormatted}, boa noite!
-
-Aqui é a ${atendente}, responsável pelas *acareações e agilizações* da *Next Move – J&T Express*.
-
-Peço, por gentileza, que dê prioridade máxima à acareação enviada em *PDF abaixo*. 📌 O cliente alega não ter recebido o pedido.
-
-📝 *Orientações rápidas:*
-1️⃣ Retorne ao local da entrega para verificar a situação.
-2️⃣ Caso localize o pedido, realize a entrega e colete a assinatura na declaração.
-3️⃣ Se necessário, acione o líder da base para confirmação digital.
-
-⚠️ *Observações importantes:*
-✍️ *Mercado Livre*: exige declaração escrita à mão (*próprio punho*) pelo cliente.
-🔸 *Não serão aceitas declarações sem assinatura, assinaturas incorretas, áudios ou vídeos.*
-⏰ *Prazo para retorno: 24h após o envio do formulário*.
-
-🚫 *A ausência de retorno poderá caracterizar extravio vinculado ao motorista.*
-
-🙏 Agradeço desde já pela colaboração e agilidade!`;
-            
+            const msg = `Olá ${it.motorista.split(' ')[0]}, boa noite!\n\nAqui é a ${it.atendente}, responsável pelas *acareações e agilizações* da *Next Move – J&T Express*.\n\nPeço, por gentileza, que dê *prioridade máxima* às acareações enviadas em *PDF*.📌 Os clientes alegam não ter recebido os pedidos.\n\n📝 *Orientações rápidas:*\n1️⃣ Retorne ao local da entrega para verificar a situação.\n2️⃣ Caso localize o pedido, realize a entrega e colete a assinatura na declaração.\n3️⃣ Se necessário, acione o líder da base para confirmação digital.\n\n⚠️ *Observações importantes:*\n✍️ *Mercado Livre*: exige declaração escrita à mão (*próprio punho*) pelo cliente.\n📄 *TikTok*: aceita somente acareações via formulário físico.\n🔸 *Não serão aceitas declarações sem assinatura, assinaturas incorretas, áudios ou vídeos.* \n⏰ *Prazo para retorno: 24h após o envio do formulário*.\n\n🚫 *A ausência de retorno poderá caracterizar extravio vinculado ao motorista.*\n\n🙏 Agradeço desde já pela colaboração e agilidade!\n\nMotorista: ${it.motorista}\nPedido: ${it.id} NF Nº. ${it.nf} - ${it.site}\nEstação de coleta: ${it.base}\nNome do destinatário: ${it.nome}\nEndereço de destinatário: ${it.endereco}\nTEL de destinatário: ${it.tel} \n${it.produto}`;
             copyToClipboard(msg);
         }
-
-        function copyOrderData(uuid) {
-            const it = ProcessedItems.find(i => i.uuid === uuid);
-            if (!it) return;
-
-            const msg = `Dados do Pedido:
-
-*Motorista: ${it.motorista}*
-*Pedido: ${it.id} NF Nº. ${it.nf} - ${it.site}*
-Estação de coleta: ${it.base}
-Nome do destinatário: ${it.nome}
-Endereço de destinatário: ${it.endereco}
-TEL de destinatário: ${it.tel} 
-${it.produto}
-
-*Reclamação: Cliente alega que não recebeu seu pedido e não conhece o recebedor*`;
-
-            copyToClipboard(msg);
-        }
-
         function copyMsgClient(uuid) {
             const it = ProcessedItems.find(i => i.uuid === uuid);
             if (!it) return;
             const site = (it.site || "").toLowerCase();
+            const gr = getGreeting();
             let msg = "";
-            const h = new Date().getHours();
-            
-            let gr = "bom dia";
-            let endGr = "Tenha um ótimo dia!";
-            if (h >= 12 && h < 18) {
-                gr = "boa tarde";
-                endGr = "Tenha uma ótima tarde!";
-            } else if (h >= 18) {
-                gr = "boa noite";
-                endGr = "Tenha uma ótima noite!";
-            }
-
-            const clientNameFull = toTitleCase(it.nome);
-
             if (site.includes("mercado")) {
-                msg = `Olá ${clientNameFull}, ${gr}!\n\nMe chamo ${it.atendente} e sou da Transportadora *J&T Express*, parceira da entrega do *${it.site}*.\n\nVerificamos que você abriu uma reclamação referente o produto *${it.produto}*, no ID do pacote *${it.nf}* da entrega dia *${it.dataHora}*.\n\nPara que possamos auxiliar, escolha uma opção:\n\n*1️⃣Recebi o produto*\n*2️⃣Não recebi o produto;*\n*3️⃣Recebi o pacote com produtos faltantes;*\n*4️⃣Recebi produto com defeito;*\n*5️⃣Recebi um produto diferente do comprado.*\n\nEstou à disposição para te ajudar a resolver a situação da melhor forma possível.\n\nAguardamos seu retorno e, desde já, agradecemos pela atenção!\n\n${it.tel}`;
+                msg = `Olá ${it.nome}, ${gr}!\n\nMe chamo ${it.atendente} e sou da Transportadora *J&T Express*, parceira da entrega do *${it.site}*.\n\nVerificamos que você abriu uma reclamação referente o produto *${it.produto}*, no ID do pacote *${it.nf}* da entrega dia *${it.dataHora}*.\n\nPara que possamos auxiliar, escolha uma opção:\n\n*1️⃣Recebi o produto*\n*2️⃣Não recebi o produto;*\n*3️⃣Recebi o pacote com produtos faltantes;*\n*4️⃣Recebi produto com defeito;*\n*5️⃣Recebi um produto diferente do comprado.*\n\nEstou à disposição para te ajudar a resolver a situação da melhor forma possível.\n\nAguardamos seu retorno e, desde já, agradecemos pela atenção!\n\n${it.tel}`;
             } else if (site.includes("tiktok")) {
-                msg = `Olá, ${clientNameFull}, ${gr}!\n\nTudo bem?\n\nSou ${it.atendente}, da *J&T Express*, transportadora responsável pela entrega do seu pedido.\n\nRecebemos uma notificação informando que este pedido *não foi recebido*:\n\n*Origem do pedido:* *${it.site}*\n*Código de rastreio:* *${it.id}*\n\nPara prosseguirmos com a tratativa, por favor, responda com uma das opções abaixo:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Não abri reclamação; recebi o pacote intacto*\n7️⃣ *Recebi o produto danificado* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\n${endGr} \n${it.tel} - ${it.base}`;
+                msg = `Olá, ${it.nome}, ${gr}!\n\nTudo bem?\n\nSou ${it.atendente}, da *J&T Express*, transportadora responsável pela entrega do seu pedido.\n\nRecebemos uma notificação informando que este pedido *não foi recebido*:\n\n*Origem do pedido:* *${it.site}*\n*Código de rastreio:* *${it.id}*\n\nPara prosseguirmos com a tratativa, por favor, responda com uma das opções abaixo:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Não abri reclamação; recebi o pacote intacto*\n7️⃣ *Recebi o produto danificado* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\nTenha um ótimo dia! \n${it.tel} - ${it.base}`;
             } else if (site.includes("via")) {
-                msg = `Olá ${clientNameFull}, ${gr}!\n\nMe chamo ${it.atendente} e sou da Transportadora *J&T Express*, responsável pela sua entrega.\n\n*NF:* ${it.nf}\n*PEDIDO:* ${it.nf}\n*Rastreio:* ${it.id}\n*Conteúdo do pacote:* ${it.produto}\n*Loja:* ${it.site}\n\nGostaria de confirmar se recebeu todos os volumes no ato da entrega, você\nconfirmou o recebimento no site da compra ?\n\n${it.tel}`;
+                msg = `Olá ${it.nome}, ${gr}!\n\nMe chamo ${it.atendente} e sou da Transportadora *J&T Express*, responsável pela sua entrega.\n\n*NF:* ${it.nf}\n*PEDIDO:* ${it.nf}\n*Rastreio:* ${it.id}\n*Conteúdo do pacote:* ${it.produto}\n*Loja:* ${it.site}\n\nGostaria de confirmar se recebeu todos os volumes no ato da entrega, você\nconfirmou o recebimento no site da compra ?\n\n${it.tel}`;
             } else {
-                msg = `Olá ${clientNameFull}, ${gr}!\n\nMeu nome é ${it.atendente}, sou representante da Transportadora *J&T Express*, parceira de entregas da *${it.site}*!\n\nVerificamos que você abriu uma reclamação referente ao pedido *${it.id}- (${it.nf})*.\n\nConteúdo do pacote: ${it.produto}\n\nPara que possamos auxiliar, escolha uma opção:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Recebi o produto danificado*\n7️⃣ *Não abri reclamação, recebi meu pacote correto* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\n${endGr} \n${it.tel} - ${it.base}`;
+                msg = `Olá ${it.nome}, ${gr}!\n\nMeu nome é ${it.atendente}, sou representante da Transportadora *J&T Express*, parceira de entregas da *${it.site}*!\n\nVerificamos que você abriu uma reclamação referente ao pedido *${it.id}- (${it.nf})*.\n\nConteúdo do pacote: ${it.produto}\n\nPara que possamos auxiliar, escolha uma opção:\n\n1️⃣ *Recebi o produto*\n2️⃣ *Não recebi o produto*\n3️⃣ *Recebi o pacote com produtos faltantes*\n4️⃣ *Recebi o produto com defeito*\n5️⃣ *Recebi um produto diferente do comprado*\n6️⃣ *Recebi o produto danificado*\n7️⃣ *Não abri reclamação, recebi meu pacote correto* Agradecemos a cooperação e pedimos desculpas por qualquer transtorno causado. \n\nTenha uma ótima tarde! \n${it.tel} - ${it.base}`;
             }
             copyToClipboard(msg);
         }
-
         function copyToClipboard(text) {
             const el = document.createElement('textarea');
             el.value = text;
@@ -764,29 +674,11 @@ ${it.produto}
             document.body.removeChild(el);
             alert("Mensagem copiada!");
         }
-
-        // NOVO: Função para abrir o PDF contornando bloqueios de popup (abre janela em branco primeiro)
         async function previewPDF(uuid) {
             const i = ProcessedItems.find(x => x.uuid === uuid);
             if (!i) return;
-
-            // Abre janela imediatamente
-            const win = window.open("", "_blank");
-            if (!win) {
-                alert("Por favor, permita pop-ups para visualizar o PDF.");
-                return;
-            }
-            win.document.write("<html><head><title>Gerando PDF...</title></head><body style='display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;'><div><h2>Gerando PDF...</h2><p>Aguarde um momento.</p></div></body></html>");
-
-            try {
-                const b = await createPDFBlob(i);
-                const url = URL.createObjectURL(b);
-                win.location.href = url;
-            } catch (err) {
-                win.close();
-                console.error(err);
-                alert("Erro ao gerar PDF: " + err.message);
-            }
+            const b = await createPDFBlob(i);
+            window.open(URL.createObjectURL(b));
         }
     </script>
 </body>
