@@ -167,7 +167,6 @@
         }
         ensureLogoLoaded();
 
-        // --- 1. PROCESSAMENTO DE DADOS ---
         function processData() {
             const raw = document.getElementById('bulk-input').value;
             if (!raw.trim()) {
@@ -211,12 +210,13 @@
 
         function renderList() {
             const container = document.getElementById('list-container');
-            const countSpan = document.getElementById('count');
             const btnUpload = document.getElementById('btn-upload');
-
             container.innerHTML = '';
-            countSpan.innerText = ProcessedItems.length;
-            btnUpload.disabled = ProcessedItems.length === 0;
+            
+            if (ProcessedItems.length > 0) {
+                document.getElementById('count').innerText = ProcessedItems.length;
+                btnUpload.disabled = false;
+            }
 
             if (ProcessedItems.length === 0) {
                 container.innerHTML = '<div class="text-center text-slate-400 py-10">Nenhum dado válido encontrado.</div>';
@@ -250,13 +250,10 @@
             });
         }
 
-        // --- 2. GERADOR DE PDF ---
         async function createPDFBlob(item) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-            
             await ensureLogoLoaded();
-
             const siteUpper = (item.site || "").toUpperCase();
 
             if (siteUpper.includes("MERCADO")) {
@@ -269,11 +266,11 @@
             return doc.output('blob');
         }
 
-        // --- LAYOUT PADRÃO (J&T) ---
+        // --- LAYOUT PADRÃO (J&T) - ATUALIZADO ---
         function generateStandardLayout(doc, item) {
             const pageWidth = doc.internal.pageSize.getWidth(); 
             const pageHeight = doc.internal.pageSize.getHeight(); 
-            const margin = 10; // Margem reduzida para 10mm (Seta Esquerda)
+            const margin = 10; 
             const contentWidth = pageWidth - (2 * margin);
             const leftX = margin + 2;
             const maxTextWidth = contentWidth - 4;
@@ -283,23 +280,17 @@
             doc.setFont("times", "normal");
 
             if (Base64Logo) {
-                const logoW = 67.2; 
-                const logoH = 18.0; 
+                const logoW = 67.2; const logoH = 18.0; 
                 doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
                 cursorY += logoH + 5;
             } else {
-                doc.setFontSize(22);
-                doc.setFont("times", "bold");
-                doc.setTextColor(220, 0, 0);
+                doc.setFontSize(22); doc.setFont("times", "bold"); doc.setTextColor(220, 0, 0);
                 doc.text("J&T EXPRESS", pageWidth / 2, cursorY + 10, { align: "center" });
-                doc.setTextColor(0);
-                cursorY += 20;
+                doc.setTextColor(0); cursorY += 20;
             }
 
-            doc.setFont("times", "normal");
-            doc.setFontSize(22);
+            doc.setFont("times", "normal"); doc.setFontSize(22);
             doc.text("Declaração de Acareação", pageWidth / 2, cursorY, { align: "center" });
-            
             const titleW = doc.getTextWidth("Declaração de Acareação");
             doc.setLineWidth(0.5);
             doc.line((pageWidth/2)-(titleW/2), cursorY+1, (pageWidth/2)+(titleW/2), cursorY+1);
@@ -314,15 +305,14 @@
             
             doc.setFont("times", "bold");
             doc.text("Dados do consumidor", pageWidth / 2, internalY, { align: "center" });
-            internalY += 8;
-            
+            internalY += 10;
             doc.setFont("times", "normal");
             
             function renderField(label, value) {
                 const text = label + value;
                 const lines = doc.splitTextToSize(text, maxTextWidth);
                 doc.text(lines, leftX, internalY);
-                internalY += (lines.length * 6) + 2; // Espaçamento compacto
+                internalY += (lines.length * 6) + 2; 
             }
 
             renderField("Nome do titular da compra: ", item.nome);
@@ -333,7 +323,6 @@
             const infoLines = doc.splitTextToSize("As informações acima podem ser confirmadas pelo telefone do titular da compra:", maxTextWidth);
             doc.text(infoLines, leftX, internalY);
             internalY += (infoLines.length * 6) + 2;
-            
             doc.text(`${item.tel}`, leftX, internalY);
             internalY += 6; 
 
@@ -347,7 +336,7 @@
 
             doc.setFont("times", "bold");
             doc.text("Motivo da Acareação", pageWidth / 2, internalY, { align: "center" });
-            internalY += 8;
+            internalY += 10;
             doc.setFont("times", "normal");
 
             const txtM1 = "Destinatário (a) está contestando o recebimento da remessa";
@@ -366,48 +355,70 @@
             doc.rect(margin, box2StartY, contentWidth, box2H);
             cursorY += box2H;
 
-            // --- CAIXA 3: QUEM RECEBEU (Seta Quadrada) ---
-            const box3StartY = cursorY;
-            internalY = box3StartY + 8;
-
+            // --- CAIXA 3: QUEM RECEBEU ---
+            // Sub-section 3.1: Pergunta e Opções
+            const box3_1_StartY = cursorY;
+            internalY = box3_1_StartY + 8;
+            
             doc.text("Quem recebeu a visita do motorista?", leftX, internalY);
-            internalY += 8;
             
-            const optX1 = leftX + 10;
-            const optX2 = optX1 + 50;
-            const optX3 = optX1; 
+            const opt1X = leftX + 70; 
+            const opt2X = opt1X + 45;
             
-            doc.rect(optX1, internalY - 4, 4, 4); doc.text("O destinatário", optX1 + 6, internalY);
-            doc.rect(optX2, internalY - 4, 4, 4); doc.text("Parente / Funcionário", optX2 + 6, internalY);
-            internalY += 8;
+            doc.rect(opt1X, internalY - 4, 4, 4); doc.text("O destinatário", opt1X + 6, internalY);
+            doc.rect(opt2X, internalY - 4, 4, 4); doc.text("Parente / Funcionário", opt2X + 6, internalY);
             
-            doc.rect(optX3, internalY - 4, 4, 4); 
-            doc.text("Outros _____________________________________________", optX3 + 6, internalY);
-            internalY += 12;
+            internalY += 10;
+            doc.rect(opt1X, internalY - 4, 4, 4); doc.text("Outros _________________________", opt1X + 6, internalY);
+            internalY += 6; // Padding bottom
 
+            const box3_1_H = internalY - box3_1_StartY;
+            doc.rect(margin, box3_1_StartY, contentWidth, box3_1_H);
+            cursorY += box3_1_H;
+
+            // Sub-section 3.2: Nome / Documento
+            const box3_2_StartY = cursorY;
+            internalY = box3_2_StartY + 10;
+            
             doc.setFont("times", "bold");
             doc.text("Nome: ___________________________________", leftX, internalY);
             doc.text("Documento: ________________________", leftX + 100, internalY);
             doc.setFont("times", "normal");
-            internalY += 12;
+            internalY += 8;
+            
+            const box3_2_H = internalY - box3_2_StartY;
+            doc.rect(margin, box3_2_StartY, contentWidth, box3_2_H);
+            cursorY += box3_2_H;
 
+            // Sub-section 3.3: Reconhecimento
+            const box3_3_StartY = cursorY;
+            internalY = box3_3_StartY + 8;
+            
             doc.text("O recebedor foi reconhecido no ato da acareação?", leftX, internalY);
+            internalY += 10;
+            
+            const recX1 = leftX;
+            const recX2 = leftX + 100; // Shift right
+            
+            doc.rect(recX1, internalY - 4, 4, 4); 
+            doc.text("Sim, a entrega foi realizada no endereço correto", recX1 + 6, internalY);
+            
+            doc.rect(recX2, internalY - 4, 4, 4); 
+            doc.text("Sim, porém no endereço errado", recX2 + 6, internalY);
+            
             internalY += 8;
-
-            doc.rect(leftX, internalY - 4, 4, 4); doc.text("Sim, endereço correto", leftX + 6, internalY);
-            const recX2 = leftX + 60;
-            doc.rect(recX2, internalY - 4, 4, 4); doc.text("Sim, endereço errado", recX2 + 6, internalY);
-            const recX3 = recX2 + 60;
-            doc.rect(recX3, internalY - 4, 4, 4); doc.text("Não", recX3 + 6, internalY);
-            internalY += 8;
-
-            const box3H = internalY - box3StartY;
-            doc.rect(margin, box3StartY, contentWidth, box3H);
-            cursorY += box3H;
+            doc.rect(recX1, internalY - 4, 4, 4); 
+            doc.text("Não", recX1 + 6, internalY);
+            
+            internalY += 6; // Padding
+            
+            const box3_3_H = internalY - box3_3_StartY;
+            doc.rect(margin, box3_3_StartY, contentWidth, box3_3_H);
+            cursorY += box3_3_H;
 
             // --- CAIXA 4: ASSINATURA ---
             const box4StartY = cursorY;
-            const box4H = 30; // Compactado
+            const box4H = 30; 
             doc.rect(margin, box4StartY, contentWidth, box4H);
             doc.line(pageWidth / 2, box4StartY, pageWidth / 2, box4StartY + box4H);
 
@@ -425,10 +436,9 @@
 
             cursorY += box4H;
 
-            // --- CAIXA 5: ENDEREÇO (Seta Baixo - Evitar corte) ---
+            // --- CAIXA 5: ENDEREÇO ---
             const box5StartY = cursorY;
             internalY = box5StartY + 6;
-            
             const addrLabel = "Endereço de destinatário: ";
             const addrVal = item.endereco;
             const fullAddr = `${addrLabel}${addrVal}`;
@@ -443,14 +453,12 @@
             // --- CAIXA 6: MOTORISTA ---
             const box6StartY = cursorY;
             internalY = box6StartY + 8; 
-            
             const motText = `MOTORISTA: ${item.motorista} - BASE: ${item.base}`;
             const motLines = doc.splitTextToSize(motText, maxTextWidth);
             doc.text(motLines, leftX, internalY);
             
             const box6H = (motLines.length * 6) + 6;
             
-            // Se estourar a página, criar nova página (embora tenhamos compactado para evitar)
             if (box6StartY + box6H > pageHeight - 5) {
                 doc.addPage();
                 cursorY = 20;
@@ -461,15 +469,13 @@
             }
         }
 
-        // --- OUTRAS FUNÇÕES MANTIDAS ---
         function generateMercadoLivreLayout(doc, item) {
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 15;
             let cursorY = 15;
             doc.setFont("times", "normal");
             if (Base64Logo) {
-                const logoW = 67.2; 
-                const logoH = 18.0; 
+                const logoW = 67.2; const logoH = 18.0; 
                 doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
                 cursorY += logoH + 15;
             } else { cursorY += 30; }
@@ -611,7 +617,7 @@
             if (!it) return;
             const driverNameFormatted = extractDriverName(it.motorista);
             const atendente = it.atendente || "Atendente"; 
-            const msg = `Olá ${driverNameFormatted}, boa noite!\n\nAqui é a ${atendente}, responsável pelas *acareações e agilizações* da *Next Move – J&T Express*.\n\nPeço, por gentileza, que dê prioridade máxima à acareação enviada em *PDF abaixo*. 📌 O cliente alega não ter recebido o pedido.\n\n📝 *Orientações rápidas:*\n1️⃣ Retorne ao local da entrega para verificar a situação.\n2️⃣ Caso localize o pedido, realize a entrega e colete a assinatura na declaração.\n3️⃣ Se necessário, acione o líder da base para confirmação digital.\n\n⚠️ *Observações importantes:*\n✍️ *Mercado Livre*: exige declaração escrita à mão (*próprio punho*) pelo cliente.\n📄 *TikTok*: aceita somente acareações via formulário físico.\n🔸 *Não serão aceitas declarações sem assinatura, assinaturas incorretas, áudios ou vídeos.* \n⏰ *Prazo para retorno: 24h após o envio do formulário*.\n\n🚫 *A ausência de retorno poderá caracterizar extravio vinculado ao motorista.*\n\n🙏 Agradeço desde já pela colaboração e agilidade!`;
+            const msg = `Olá ${driverNameFormatted}, boa noite!\n\nAqui é a ${atendente}, responsável pelas *acareações e agilizações* da *Next Move – J&T Express*.\n\nPeço, por gentileza, que dê prioridade máxima à acareação enviada em *PDF abaixo*. 📌 O cliente alega não ter recebido o pedido.\n\n📝 *Orientações rápidas:*\n1️⃣ Retorne ao local da entrega para verificar a situação.\n2️⃣ Caso localize o pedido, realize a entrega e colete a assinatura na declaração.\n3️⃣ Se necessário, acione o líder da base para confirmação digital.\n\n⚠️ *Observações importantes:*\n✍️ *Mercado Livre*: exige declaração escrita à mão (*próprio punho*) pelo cliente.\n🔸 *Não serão aceitas declarações sem assinatura, assinaturas incorretas, áudios ou vídeos.* \n⏰ *Prazo para retorno: 24h após o envio do formulário*.\n\n🚫 *A ausência de retorno poderá caracterizar extravio vinculado ao motorista.*\n\n🙏 Agradeço desde já pela colaboração e agilidade!`;
             copyToClipboard(msg);
         }
         function copyOrderData(uuid) {
