@@ -323,7 +323,8 @@
                 doc.text(lines, leftX, internalY);
                 // 6mm por linha (fonte 12)
                 const heightIncrease = lines.length * 6;
-                internalY += heightIncrease + 1; 
+                // AUMENTADO PARA DAR MAIS ESPAÇO ENTRE LINHAS (SOLICITAÇÃO DO USUÁRIO)
+                internalY += heightIncrease + 5; 
             }
 
             addWrappedText("Nome do titular da compra: ", item.nome);
@@ -439,7 +440,7 @@
 
             cursorY += box4H;
 
-            // --- CAIXA 5: ENDEREÇO (DINÂMICA) ---
+            // --- CAIXA 5: ENDEREÇO (VOLTANDO A SER CAIXA CONFORME PEDIDO) ---
             const box5StartY = cursorY;
             internalY = box5StartY + 6;
             
@@ -453,7 +454,7 @@
             doc.rect(margin, box5StartY, contentWidth, box5H);
             cursorY += box5H;
 
-            // --- CAIXA 6: MOTORISTA (DINÂMICA) ---
+            // --- CAIXA 6: MOTORISTA (VOLTANDO A SER CAIXA CONFORME PEDIDO) ---
             const box6StartY = cursorY;
             internalY = box6StartY + 8; 
             
@@ -463,7 +464,7 @@
             
             const box6H = (motLines.length * 6) + 6;
             
-            // Se estourar, cria nova página (embora o design esteja compacto)
+            // Se estourar, cria nova página
             if (box6StartY + box6H > pageHeight - 5) {
                  doc.addPage();
                  cursorY = 10; 
