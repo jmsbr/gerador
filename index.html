@@ -311,11 +311,11 @@
 
             doc.setFont("times", "normal");
 
-            // HEADER
+            // HEADER (Optimized for space)
             if (Base64Logo) {
-                const logoW = 67.2; const logoH = 18.0; 
+                const logoW = 45.0; const logoH = 12.0; // Smaller Logo
                 doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
-                cursorY += logoH + 2; 
+                cursorY += logoH + 4; 
             } else {
                 doc.setFontSize(22); doc.setFont("times", "bold"); doc.setTextColor(220, 0, 0);
                 doc.text("J&T EXPRESS", pageWidth / 2, cursorY + 10, { align: "center" });
@@ -347,7 +347,7 @@
                 const text = label + value;
                 const lines = doc.splitTextToSize(text, maxTextWidth);
                 doc.text(lines, leftX, internalY);
-                // AQUI FOI AUMENTADO O ESPAÇAMENTO PARA 5MM
+                // AQUI FOI AUMENTADO O ESPAÇAMENTO PARA 5MM (Mantido para itens gerais)
                 internalY += (lines.length * 7) + 5; 
             }
 
@@ -356,9 +356,10 @@
             renderField("ID Pedido: ", item.id);
             renderField("Nome do produto: ", item.produto);
 
+            // AQUI FOI REMOVIDO O ESPAÇAMENTO EXTRA PARA O TELEFONE
             const infoLines = doc.splitTextToSize("As informações acima podem ser confirmadas pelo telefone do titular da compra:", maxTextWidth);
             doc.text(infoLines, leftX, internalY);
-            internalY += (infoLines.length * 7) + 5; // Aumentado espaçamento aqui também
+            internalY += (infoLines.length * 5) + 1; // Espaçamento padrão
             doc.text(`${item.tel}`, leftX, internalY);
             internalY += 6; 
 
