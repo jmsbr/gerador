@@ -179,6 +179,12 @@
             });
         }
 
+        // Função de Limpeza de Acentos
+        function removeAccents(str) {
+            if (!str) return "";
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        }
+
         async function ensureAssetsLoaded() {
             if (Base64Logo === null) {
                 const loaded = await loadImage(LOGO_URL, false);
@@ -213,11 +219,11 @@
                 const item = {
                     id: cols[0],
                     nf: cols[1],
-                    nome: cols[2],
+                    nome: removeAccents(cols[2]),     // LIMPEZA APLICADA
                     tel: cols[3],
                     site: cols[4] || "Outros",
-                    endereco: rawAddress,
-                    produto: cols[6],
+                    endereco: removeAccents(rawAddress), // LIMPEZA APLICADA
+                    produto: removeAccents(cols[6]),    // LIMPEZA APLICADA
                     base: cols[7],
                     motorista: cols[8] || "Não Informado",
                     dataHora: cols[9],
@@ -341,7 +347,8 @@
                 const text = label + value;
                 const lines = doc.splitTextToSize(text, maxTextWidth);
                 doc.text(lines, leftX, internalY);
-                internalY += (lines.length * 7) + 1; 
+                // AQUI FOI AUMENTADO O ESPAÇAMENTO PARA 5MM
+                internalY += (lines.length * 7) + 5; 
             }
 
             renderField("Nome do titular da compra: ", item.nome);
@@ -351,7 +358,7 @@
 
             const infoLines = doc.splitTextToSize("As informações acima podem ser confirmadas pelo telefone do titular da compra:", maxTextWidth);
             doc.text(infoLines, leftX, internalY);
-            internalY += (infoLines.length * 7) + 1;
+            internalY += (infoLines.length * 7) + 5; // Aumentado espaçamento aqui também
             doc.text(`${item.tel}`, leftX, internalY);
             internalY += 6; 
 
