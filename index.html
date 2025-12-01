@@ -164,6 +164,13 @@
         }
         ensureLogoLoaded();
 
+        // --- FUNÇÃO PARA REMOVER ACENTOS ---
+        // Isso corrige o erro de desconfiguração no PDF
+        function removeAccents(str) {
+            if (!str) return "";
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        }
+
         function processData() {
             const raw = document.getElementById('bulk-input').value;
             if (!raw.trim()) {
@@ -181,24 +188,25 @@
                 let rawAddress = cols[5] || "";
                 rawAddress = rawAddress.replace(/^Endereço de destinatário:\s*/i, "").replace(/^Endereço:\s*/i, "");
 
+                // AQUI APLICAMOS A REMOÇÃO DE ACENTOS PARA EVITAR ERROS NO PDF
                 const item = {
                     id: cols[0],
                     nf: cols[1],
-                    nome: cols[2],
+                    nome: removeAccents(cols[2]),        // Remove acento do nome
                     tel: cols[3],
                     site: cols[4] || "Outros",
-                    endereco: rawAddress,
-                    produto: cols[6],
-                    base: cols[7],
-                    motorista: cols[8] || "Não Informado",
+                    endereco: removeAccents(rawAddress), // Remove acento do endereço
+                    produto: removeAccents(cols[6]),     // Remove acento do produto (Ex: Térmica -> Termica)
+                    base: removeAccents(cols[7]),        // Remove acento da base
+                    motorista: removeAccents(cols[8] || "Não Informado"), // Remove acento do motorista
                     dataHora: cols[9],
-                    atendente: cols[10] || "Atendente",
+                    atendente: removeAccents(cols[10] || "Atendente"),    // Remove acento do atendente
                     uuid: generateUUID()
                 };
 
                 const safeBase = (item.base || "").replace(/[^a-zA-Z0-9-]/g, ""); 
                 const safeMot = (item.motorista || "").replace(/[^a-zA-Z0-9 -]/g, "").toUpperCase(); 
-                item.fileName = `${safeBase} - Acareação Motorista - ${safeBase} - ${safeMot} - ${item.id}.pdf`;
+                item.fileName = `${safeBase} - Acareacao Motorista - ${safeBase} - ${safeMot} - ${item.id}.pdf`;
 
                 ProcessedItems.push(item);
             });
@@ -289,8 +297,9 @@
             // TITLE
             doc.setFont("times", "normal");
             doc.setFontSize(22);
-            doc.text("Declaração de Acareação", pageWidth / 2, cursorY + 8, { align: "center" });
-            const titleW = doc.getTextWidth("Declaração de Acareação");
+            // Removemos acento aqui manualmente para garantir, embora a função já deva ter limpado os inputs
+            doc.text("Declaracao de Acareacao", pageWidth / 2, cursorY + 8, { align: "center" });
+            const titleW = doc.getTextWidth("Declaracao de Acareacao");
             doc.setLineWidth(0.5);
             doc.line((pageWidth/2)-(titleW/2), cursorY+9, (pageWidth/2)+(titleW/2), cursorY+9);
             doc.setLineWidth(0.1);
@@ -322,7 +331,7 @@
             addWrappedText("ID Pedido: ", item.id);
             addWrappedText("Nome do produto: ", item.produto); // Produto grande quebra aqui
 
-            const infoText = "As informações acima podem ser confirmadas pelo telefone do titular da compra:";
+            const infoText = "As informacoes acima podem ser confirmadas pelo telefone do titular da compra:";
             const infoLines = doc.splitTextToSize(infoText, maxTextWidth);
             doc.text(infoLines, leftX, internalY);
             internalY += (infoLines.length * 6) + 1;
@@ -340,17 +349,17 @@
             internalY = box2StartY + 6;
 
             doc.setFont("times", "bold");
-            doc.text("Motivo da Acareação", pageWidth / 2, internalY, { align: "center" });
+            doc.text("Motivo da Acareacao", pageWidth / 2, internalY, { align: "center" });
             internalY += 8;
             doc.setFont("times", "normal");
 
-            const txtM1 = "Destinatário (a) está contestando o recebimento da remessa";
+            const txtM1 = "Destinatario (a) esta contestando o recebimento da remessa";
             const linesM1 = doc.splitTextToSize(txtM1, maxTextWidth - 10); 
             doc.rect(leftX, internalY - 4, 4, 4); 
             doc.text(linesM1, leftX + 6, internalY);
             internalY += (linesM1.length * 6) + 2;
 
-            const txtM2 = "Destinatário (a) está contestando o recebimento dos volumes devidamente lacrados e sem sinais de violação.";
+            const txtM2 = "Destinatario (a) esta contestando o recebimento dos volumes devidamente lacrados e sem sinais de violacao.";
             const linesM2 = doc.splitTextToSize(txtM2, maxTextWidth - 10);
             doc.rect(leftX, internalY - 4, 4, 4);
             doc.text(linesM2, leftX + 6, internalY);
@@ -370,8 +379,8 @@
             const opt1X = leftX + 70; 
             const opt2X = opt1X + 45;
             
-            doc.rect(opt1X, internalY - 4, 4, 4); doc.text("O destinatário", opt1X + 6, internalY);
-            doc.rect(opt2X, internalY - 4, 4, 4); doc.text("Parente / Funcionário", opt2X + 6, internalY);
+            doc.rect(opt1X, internalY - 4, 4, 4); doc.text("O destinatario", opt1X + 6, internalY);
+            doc.rect(opt2X, internalY - 4, 4, 4); doc.text("Parente / Funcionario", opt2X + 6, internalY);
             internalY += 10;
             
             doc.rect(leftX + 70, internalY - 4, 4, 4);
@@ -396,14 +405,14 @@
             doc.line(margin, internalY, pageWidth - margin, internalY);
             internalY += 8;
 
-            doc.text("O recebedor foi reconhecido no ato da acareação?", leftX, internalY);
+            doc.text("O recebedor foi reconhecido no ato da acareacao?", leftX, internalY);
             internalY += 10;
 
-            doc.rect(leftX, internalY - 4, 4, 4); doc.text("Sim, endereço correto", leftX + 6, internalY);
+            doc.rect(leftX, internalY - 4, 4, 4); doc.text("Sim, endereco correto", leftX + 6, internalY);
             const recX2 = leftX + 60;
-            doc.rect(recX2, internalY - 4, 4, 4); doc.text("Sim, endereço errado", recX2 + 6, internalY);
+            doc.rect(recX2, internalY - 4, 4, 4); doc.text("Sim, endereco errado", recX2 + 6, internalY);
             const recX3 = recX2 + 60;
-            doc.rect(recX3, internalY - 4, 4, 4); doc.text("Não", recX3 + 6, internalY);
+            doc.rect(recX3, internalY - 4, 4, 4); doc.text("Nao", recX3 + 6, internalY);
             internalY += 8;
 
             const box3H = internalY - box3StartY;
@@ -425,7 +434,7 @@
             const centerRight = (pageWidth / 2) + (contentWidth / 4);
             doc.text("______, de ____________ de ______", centerRight, box4StartY + 10, { align: "center" });
             doc.setFontSize(10); 
-            doc.text("Dia          Mês e Ano", centerRight, box4StartY + 18, { align: "center" });
+            doc.text("Dia           Mes e Ano", centerRight, box4StartY + 18, { align: "center" });
             doc.setFontSize(12);
 
             cursorY += box4H;
@@ -435,7 +444,7 @@
             internalY = box5StartY + 6;
             
             // Quebra endereço longo automaticamente
-            const fullAddr = `Endereço de destinatário: ${item.endereco}   TEL: ${item.tel}`;
+            const fullAddr = `Endereco de destinatario: ${item.endereco}   TEL: ${item.tel}`;
             const addrLines = doc.splitTextToSize(fullAddr, maxTextWidth);
             doc.text(addrLines, leftX, internalY);
             internalY += (addrLines.length * 6) + 2;
@@ -477,9 +486,9 @@
                 cursorY += logoH + 15;
             } else { cursorY += 30; }
             doc.setFont("times", "bold"); doc.setFontSize(22); 
-            doc.text("Modelo de Acareação Física (confirmação de recebimento):", margin, cursorY); cursorY += 20;
+            doc.text("Modelo de Acareacao Fisica (confirmacao de recebimento):", margin, cursorY); cursorY += 20;
             doc.setFontSize(12); doc.setFont("times", "normal");
-            const text = `Eu, ${item.nome.toUpperCase()}, portador(a) do CPF [____________________], declaro para os devidos fins que recebi o pedido de número [${item.nf || item.id}], referente ao produto [${item.produto}], no dia [${item.dataHora || "____/____/______"}].`;
+            const text = `Eu, ${item.nome.toUpperCase()}, portador(a) do CPF [____________________], declaro para os devidos fins que recebi o pedido de numero [${item.nf || item.id}], referente ao produto [${item.produto}], no dia [${item.dataHora || "____/____/______"}].`;
             const splitText = doc.splitTextToSize(text, pageWidth - (2 * margin));
             doc.text(splitText, margin, cursorY); cursorY += (splitText.length * 7) + 20;
             doc.text(`[${item.base.split('-')[0].trim()}], [____] de [_________] de [______].`, pageWidth / 2, cursorY, { align: "center" }); cursorY += 30;
@@ -487,9 +496,9 @@
             doc.text("Assinatura do cliente", pageWidth / 2, cursorY, { align: "center" }); cursorY += 40;
             doc.setFontSize(14); doc.setFont("times", "bold"); doc.setTextColor(220, 0, 0);
             doc.text("TIRAR FOTO DE QUALQUER DOCUMENTO DO CLIENTE", pageWidth / 2, cursorY, { align: "center" }); cursorY += 8;
-            doc.text("JUNTO A ACAREAÇÃO ESCRITA A PRÓPRIO PUNHO", pageWidth / 2, cursorY, { align: "center" }); cursorY += 20;
+            doc.text("JUNTO A ACAREACAO ESCRITA A PROPRIO PUNHO", pageWidth / 2, cursorY, { align: "center" }); cursorY += 20;
             doc.setTextColor(0); doc.setFontSize(12); doc.setFont("times", "italic");
-            doc.text("Observação: O pacote deve ser entregue somente mediante apresentação do documento de identidade (RG).", margin, cursorY);
+            doc.text("Observacao: O pacote deve ser entregue somente mediante apresentacao do documento de identidade (RG).", margin, cursorY);
             const pageHeight = doc.internal.pageSize.getHeight();
             doc.setFont("times", "normal"); doc.setFontSize(12);
             doc.text(`MOTORISTA: ${item.motorista} - BASE: ${item.base}`, margin, pageHeight - 15);
@@ -505,17 +514,17 @@
                 doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH); cursorY += logoH + 15;
             } else { cursorY += 30; }
             doc.text(`Data da entrega: ____/____/____`, margin, cursorY); cursorY += 8;
-            doc.text(`Destinatário: ${item.nome}`, margin, cursorY); cursorY += 8;
+            doc.text(`Destinatario: ${item.nome}`, margin, cursorY); cursorY += 8;
             doc.text(`Nota: ${item.nf || ""}`, margin, cursorY); doc.text(`Pedido: ${item.id}`, margin + 100, cursorY); cursorY += 8;
-            doc.text(`Data da Solicitação: ____/____/____`, margin, cursorY); cursorY += 15;
+            doc.text(`Data da Solicitacao: ____/____/____`, margin, cursorY); cursorY += 15;
             doc.setFont("times", "bold"); doc.setFontSize(14);
-            doc.text("Formulário de Acareação.", pageWidth / 2, cursorY, { align: "center" }); cursorY += 25;
+            doc.text("Formulario de Acareacao.", pageWidth / 2, cursorY, { align: "center" }); cursorY += 25;
             doc.setFont("times", "normal"); doc.setFontSize(12);
             doc.text("Eu, ____________________________________________________________________, grau de parentesco", margin, cursorY); cursorY += 10;
             doc.text("__________________ portador do RG ______________________________________ declaro que:", margin, cursorY); cursorY += 15;
-            doc.text("(   ) Recebi a mercadoria no endereço correto.", margin, cursorY); cursorY += 8;
-            doc.text("(   ) Não recebi a mercadoria.", margin, cursorY); cursorY += 8;
-            doc.text("(   ) Recebi a mercadoria no endereço devido, porem com avaria.", margin, cursorY); cursorY += 15;
+            doc.text("(   ) Recebi a mercadoria no endereco correto.", margin, cursorY); cursorY += 8;
+            doc.text("(   ) Nao recebi a mercadoria.", margin, cursorY); cursorY += 8;
+            doc.text("(   ) Recebi a mercadoria no endereco devido, porem com avaria.", margin, cursorY); cursorY += 15;
             const splitObs = doc.splitTextToSize("OBS:_________________________________________________________________________________________________________________________________________________________________________________.", pageWidth - (2*margin));
             doc.text(splitObs, margin, cursorY); cursorY += (splitObs.length * 6) + 20;
             doc.text("___________________________________", margin, cursorY); cursorY += 5;
@@ -523,7 +532,7 @@
             doc.text("RG: ________________________________", margin, cursorY); cursorY += 10;
             doc.text("DATA: ____/____/___________.", margin, cursorY); cursorY += 20;
             doc.text(`Motorista: ${item.motorista}`, margin, cursorY); cursorY += 10;
-            doc.text("Assinatura: _________________                              Data: ____/____/_______  RG:_______________.", margin, cursorY);
+            doc.text("Assinatura: _________________                           Data: ____/____/_______  RG:_______________.", margin, cursorY);
         }
 
         async function fetchWithTimeout(resource, options = {}) {
