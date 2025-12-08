@@ -353,7 +353,11 @@
 
             renderField("Nome do titular da compra: ", item.nome);
             renderField("Site no qual a compra foi realizada: ", item.site);
-            renderField("ID Pedido: ", item.id);
+            
+            // --- ALTERAÇÃO AQUI: Concatenar ID e NF ---
+            const idDisplay = (item.id && item.nf) ? `${item.id} - ${item.nf}` : (item.id || item.nf || "");
+            renderField("ID Pedido: ", idDisplay);
+            
             renderField("Nome do produto: ", item.produto);
 
             // AQUI FOI REMOVIDO O ESPAÇAMENTO EXTRA PARA O TELEFONE
@@ -752,7 +756,14 @@
             if (!it) return;
             const driverNameFormatted = extractDriverName(it.motorista);
             const atendente = it.atendente || "Atendente"; 
-            const msg = `Olá ${driverNameFormatted}, boa noite!\n\nAqui é a ${atendente}, responsável pelas *acareações e agilizações* da *Next Move – J&T Express*.\n\nPeço, por gentileza, que dê prioridade máxima à acareação enviada em *PDF abaixo*. 📌 O cliente alega não ter recebido o pedido.\n\n📝 *Orientações rápidas:*\n1️⃣ Retorne ao local da entrega para verificar a situação.\n2️⃣ Caso localize o pedido, realize a entrega e colete a assinatura na declaração.\n3️⃣ Se necessário, acione o líder da base para confirmação digital.\n\n⚠️ *Observações importantes:*\n✍️ *Mercado Livre*: exige declaração escrita à mão (*próprio punho*) pelo cliente.\n🔸 *Não serão aceitas declarações sem assinatura, assinaturas incorretas, áudios ou vídeos.* \n⏰ *Prazo para retorno: 24h após o envio do formulário*.\n\n🚫 *A ausência de retorno poderá caracterizar extravio vinculado ao motorista.*\n\n🙏 Agradeço desde já pela colaboração e agilidade!`;
+
+            // --- ALTERAÇÃO AQUI: Saudação Dinâmica ---
+            const h = new Date().getHours();
+            let saudacao = "bom dia";
+            if (h >= 12 && h < 18) { saudacao = "boa tarde"; }
+            else if (h >= 18) { saudacao = "boa noite"; }
+
+            const msg = `Olá ${driverNameFormatted}, ${saudacao}!\n\nAqui é a ${atendente}, responsável pelas *acareações e agilizações* da *Next Move – J&T Express*.\n\nPeço, por gentileza, que dê prioridade máxima à acareação enviada em *PDF abaixo*. 📌 O cliente alega não ter recebido o pedido.\n\n📝 *Orientações rápidas:*\n1️⃣ Retorne ao local da entrega para verificar a situação.\n2️⃣ Caso localize o pedido, realize a entrega e colete a assinatura na declaração.\n3️⃣ Se necessário, acione o líder da base para confirmação digital.\n\n⚠️ *Observações importantes:*\n✍️ *Mercado Livre*: exige declaração escrita à mão (*próprio punho*) pelo cliente.\n🔸 *Não serão aceitas declarações sem assinatura, assinaturas incorretas, áudios ou vídeos.* \n⏰ *Prazo para retorno: 24h após o envio do formulário*.\n\n🚫 *A ausência de retorno poderá caracterizar extravio vinculado ao motorista.*\n\n🙏 Agradeço desde já pela colaboração e agilidade!`;
             copyToClipboard(msg);
         }
         function copyOrderData(uuid) {
