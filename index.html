@@ -128,12 +128,13 @@
         const MELI_IMG_URL = "MELI.JPEG";
         
         // Base64 de backup (Logo J&T Express simples)
-        const LOGO_BASE64_BACKUP = "data:image/png;base64,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";
+        const LOGO_BASE64_BACKUP = "data:image/png;base64,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";
 
         // Função genérica para carregar imagens
         async function loadImage(url, isMeli = false) {
             return new Promise((resolve) => {
                 const img = new Image();
+                img.crossOrigin = "Anonymous"; // Add CORS support
                 img.onload = () => {
                     if (img.width === 0 || img.height === 0) {
                         console.warn(`Imagem ${url} carregada mas vazia.`);
@@ -219,7 +220,7 @@
                 const item = {
                     id: cols[0],
                     nf: cols[1],
-                    nome: removeAccents(cols[2]),     // LIMPEZA APLICADA
+                    nome: removeAccents(cols[2]),      // LIMPEZA APLICADA
                     tel: cols[3],
                     site: cols[4] || "Outros",
                     endereco: removeAccents(rawAddress), // LIMPEZA APLICADA
@@ -271,11 +272,17 @@
                         <p class="truncate" title="${item.nf}"><strong>NF:</strong> ${item.nf}</p>
                         <p class="col-span-2 truncate" title="${item.nome}"><strong>Cliente:</strong> ${item.nome}</p>
                     </div>
-                    <div class="grid grid-cols-4 gap-2">
-                        <button onclick="copyMsgDriver('${item.uuid}')" class="py-1.5 px-2 bg-white border border-slate-300 rounded text-[10px] font-medium text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">Msg Motorista</button>
-                        <button onclick="copyOrderData('${item.uuid}')" class="py-1.5 px-2 bg-white border border-slate-300 rounded text-[10px] font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition">Dados Pedido</button>
-                        <button onclick="copyMsgClient('${item.uuid}')" class="py-1.5 px-2 bg-white border border-slate-300 rounded text-[10px] font-medium text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">Msg Cliente</button>
+                    <div class="grid grid-cols-5 gap-2">
+                        <button onclick="copyMsgDriver('${item.uuid}')" class="py-1.5 px-2 bg-white border border-slate-300 rounded text-[10px] font-medium text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">Msg Mot.</button>
+                        <button onclick="copyOrderData('${item.uuid}')" class="py-1.5 px-2 bg-white border border-slate-300 rounded text-[10px] font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition">Dados</button>
+                        <button onclick="copyMsgClient('${item.uuid}')" class="py-1.5 px-2 bg-white border border-slate-300 rounded text-[10px] font-medium text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">Msg Cli.</button>
                         <button onclick="previewPDF('${item.uuid}')" class="py-1.5 px-2 bg-slate-800 text-white rounded text-[10px] font-medium hover:bg-slate-900 transition">Ver PDF</button>
+                        <button onclick="downloadPDF('${item.uuid}')" class="py-1.5 px-2 bg-blue-600 text-white rounded text-[10px] font-medium hover:bg-blue-700 transition flex items-center justify-center gap-1" title="Baixar PDF">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Baixar
+                        </button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -313,9 +320,17 @@
 
             // HEADER (Optimized for space)
             if (Base64Logo) {
-                const logoW = 55.0; const logoH = 15.0; // Slightly larger Logo
-                doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
-                cursorY += logoH + 4; 
+                try {
+                    const logoW = 55.0; const logoH = 15.0; // Slightly larger Logo
+                    doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
+                    cursorY += logoH + 4; 
+                } catch (e) {
+                    // Fallback se a imagem falhar
+                    doc.setFontSize(22); doc.setFont("times", "bold"); doc.setTextColor(220, 0, 0);
+                    doc.text("J&T EXPRESS", pageWidth / 2, cursorY + 10, { align: "center" });
+                    doc.setTextColor(0); cursorY += 15;
+                    console.warn("Falha ao carregar logo no PDF padrão", e);
+                }
             } else {
                 doc.setFontSize(22); doc.setFont("times", "bold"); doc.setTextColor(220, 0, 0);
                 doc.text("J&T EXPRESS", pageWidth / 2, cursorY + 10, { align: "center" });
@@ -526,9 +541,14 @@
             // 1. Header (Logo ou Espaço)
             doc.setFont("times", "normal");
             if (Base64Logo) {
-                const logoW = 67.2; const logoH = 18.0; 
-                doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
-                cursorY += logoH + 10;
+                try {
+                    const logoW = 67.2; const logoH = 18.0; 
+                    doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
+                    cursorY += logoH + 10;
+                } catch(e) {
+                     cursorY += 25; // Fallback spacing
+                     console.warn("Falha ao carregar logo no PDF Meli", e);
+                }
             } else { cursorY += 25; }
 
             // 2. Explicação do Procedimento
@@ -622,8 +642,13 @@
                     doc.text("Exemplo Visual:", margin, cursorY);
                     cursorY += 5;
                     
-                    doc.addImage(Base64Meli, 'JPEG', xPos, cursorY, imgW, imgH);
-                    cursorY += imgH + 5;
+                    try {
+                        doc.addImage(Base64Meli, 'JPEG', xPos, cursorY, imgW, imgH);
+                        cursorY += imgH + 5;
+                    } catch (e) {
+                         console.warn("Erro ao carregar imagem exemplo Meli", e);
+                         // Skip image
+                    }
                 }
             } else {
                  // Caso a imagem não carregue, deixa um espaço ou aviso (opcional)
@@ -643,8 +668,13 @@
             let cursorY = 20;
             doc.setFont("times", "normal"); doc.setFontSize(12);
             if (Base64Logo) {
-                const logoW = 67.2; const logoH = 18.0; 
-                doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH); cursorY += logoH + 15;
+                try {
+                    const logoW = 67.2; const logoH = 18.0; 
+                    doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH); cursorY += logoH + 15;
+                } catch (e) {
+                    cursorY += 30;
+                    console.warn("Falha ao carregar logo no PDF Via", e);
+                }
             } else { cursorY += 30; }
             doc.text(`Data da entrega: ____/____/____`, margin, cursorY); cursorY += 8;
             doc.text(`Destinatário: ${item.nome}`, margin, cursorY); cursorY += 8;
@@ -820,6 +850,32 @@
                 win.close();
                 console.error(err);
                 alert("Erro ao gerar PDF: " + err.message);
+            }
+        }
+
+        async function downloadPDF(uuid) {
+            const item = ProcessedItems.find(i => i.uuid === uuid);
+            if (!item) return;
+
+            try {
+                // Feedback visual simples
+                document.body.style.cursor = 'wait';
+
+                const blob = await createPDFBlob(item);
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = item.fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao baixar PDF: " + err.message);
+            } finally {
+                document.body.style.cursor = 'default';
             }
         }
     </script>
