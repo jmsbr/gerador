@@ -115,7 +115,8 @@
     <script type="module">
         // Importa as funções necessárias do SDK do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        // Adicionado setDoc e doc para permitir escrita em caminho específico
+        import { getFirestore, collection, addDoc, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Configuração do Firebase fornecida
         const firebaseConfig = {
@@ -486,7 +487,7 @@
             const centerRight = (pageWidth / 2) + (contentWidth / 4);
             doc.text("______, de ____________ de ______", centerRight, box4StartY + 10, { align: "center" });
             doc.setFontSize(10); 
-            doc.text("Dia         Mês e Ano", centerRight, box4StartY + 18, { align: "center" });
+            doc.text("Dia          Mês e Ano", centerRight, box4StartY + 18, { align: "center" });
             doc.setFontSize(12);
 
             cursorY += box4H;
@@ -540,7 +541,7 @@
                     doc.addImage(Base64Logo, 'PNG', (pageWidth - logoW) / 2, cursorY, logoW, logoH);
                     cursorY += logoH + 10;
                 } catch(e) {
-                      cursorY += 25; 
+                       cursorY += 25; 
                 }
             } else { cursorY += 25; }
 
@@ -677,7 +678,7 @@
         }
 
         // --- FIREBASE UPLOAD LÓGICA ---
-        // Agora ao invés de baixar JSON, nós adicionamos DOCS no Firestore
+        // Atualizado para usar setDoc e caminho específico
         window.uploadToPanel = async function() {
             if (!confirm("Confirma o envio para o Firebase?")) return;
             const overlay = document.getElementById('loading-overlay');
@@ -691,9 +692,8 @@
                 const dateStr = new Date().toISOString().split('T')[0];
                 const deadline = now + (24 * 60 * 60 * 1000);
 
-                // Coleção onde vamos salvar
-                const acareacoesCollection = collection(db, "acareacoes");
-
+                // Caminho específico solicitado: artifacts/jmsbr-81be4/public/data/acareacoesRelatórios
+                
                 for (let i = 0; i < ProcessedItems.length; i++) {
                     const item = ProcessedItems[i];
                     txt.innerText = `Gerando PDF e enviando ${i+1}/${ProcessedItems.length}...`;
@@ -701,15 +701,18 @@
                     // Gera o Blob do PDF
                     const blob = await createPDFBlob(item);
                     
-                    // Converte Blob para Base64 (Nota: Firestore tem limite de 1MB por doc. Se o PDF for grande, falhará)
+                    // Converte Blob para Base64
                     const reader = new FileReader();
                     const b64 = await new Promise(resolve => {
                         reader.onloadend = () => resolve(reader.result);
                         reader.readAsDataURL(blob);
                     });
 
+                    // ID único para o documento
+                    const docId = generateUUID();
+
                     const docData = {
-                        id: generateUUID(),
+                        id: docId,
                         fileName: item.fileName,
                         folderName: dateStr,
                         uploadDate: now,
@@ -719,13 +722,14 @@
                         whatsappNotified: 'no',
                         valorPedido: 0,
                         valorMulta: 0,
-                        motorista: item.motorista, // Campos extras úteis para busca
+                        motorista: item.motorista,
                         base: item.base,
                         pedidoId: item.id
                     };
 
-                    // Envia para o Firestore
-                    await addDoc(acareacoesCollection, docData);
+                    // Envia para o Firestore usando setDoc no caminho: artifacts/jmsbr-81be4/public/data/acareacoesRelatórios
+                    const docRef = doc(db, 'artifacts', 'jmsbr-81be4', 'public', 'data', 'acareacoesRelatórios', docId);
+                    await setDoc(docRef, docData);
                 }
 
                 alert("Todos os arquivos foram enviados com sucesso para o Firestore!");
