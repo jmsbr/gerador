@@ -137,8 +137,9 @@
         const LOGO_URL = "loadLogo.png";
         const MELI_IMG_URL = "MELI.JPEG";
         
-        // Base64 de backup (Logo J&T Express simples)
-        const LOGO_BASE64_BACKUP = "data:image/png;base64,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";
+        // Base64 de backup removido pois estava corrompido e causando SyntaxError.
+        // O sistema usará o fallback automático em texto (J&T EXPRESS) se a imagem falhar.
+        const LOGO_BASE64_BACKUP = null;
 
         async function loadImage(url, isMeli = false) {
             return new Promise((resolve) => {
@@ -374,8 +375,15 @@
             renderField("Nome do titular da compra: ", item.nome);
             renderField("Site no qual a compra foi realizada: ", item.site);
             
-            const idDisplay = (item.id && item.nf) ? `${item.id} - ${item.nf}` : (item.id || item.nf || "");
-            renderField("ID Pedido: ", idDisplay);
+            const siteUpper = (item.site || "").toUpperCase();
+            if (siteUpper.includes("TIKTOK")) {
+                doc.text(`Número da nota fiscal: ${item.nf || ""}`, leftX, internalY);
+                doc.text(`ID Pedido: ${item.id || ""}`, leftX + 90, internalY);
+                internalY += 10;
+            } else {
+                const idDisplay = (item.id && item.nf) ? `${item.id} - ${item.nf}` : (item.id || item.nf || "");
+                renderField("ID Pedido: ", idDisplay);
+            }
             
             renderField("Nome do produto: ", item.produto);
 
